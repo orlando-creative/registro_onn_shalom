@@ -1,0 +1,595 @@
+/* ====================================================================
+   ONN — Operación Niño de la Navidad
+   Estilos Responsive y Mobile-First
+   Archivo: css/responsive.css
+   ==================================================================== */
+
+/* Disposición general en cuadrícula */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-tarjeta {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-bordes);
+  border-radius: var(--radio-lg);
+  padding: 1.25rem;
+  box-shadow: var(--sombra-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-etiqueta {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-texto-secundario);
+  margin-bottom: 0.375rem;
+}
+
+.stat-valor {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-verde-oscuro);
+  line-height: 1.1;
+}
+
+.stat-desc {
+  font-size: 0.75rem;
+  color: var(--color-texto-apagado);
+  margin-top: 0.375rem;
+}
+
+/* Buscador y barra de filtros */
+.barra-busqueda-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.busqueda-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.busqueda-input-wrapper .input-control {
+  padding-left: 0.875rem;
+  padding-right: 2.25rem;
+}
+
+.busqueda-icono {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-texto-apagado);
+  pointer-events: none;
+  font-size: 0.9375rem;
+}
+
+.busqueda-limpiar {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-texto-apagado);
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1;
+  display: none;
+}
+
+.busqueda-limpiar.visible {
+  display: block;
+}
+
+/* Tarjetas para vista móvil de listados */
+.lista-tarjetas-movil {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.tarjeta-nino-movil {
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-bordes);
+  border-radius: var(--radio-md);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all var(--transicion-rapida);
+  box-shadow: var(--sombra-sm);
+}
+
+.tarjeta-nino-movil:hover {
+  border-color: var(--color-verde-principal);
+  transform: translateY(-1px);
+  box-shadow: var(--sombra-md);
+}
+
+.tarjeta-nino-miniatura {
+  width: 54px;
+  height: 68px;
+  border-radius: var(--radio-sm);
+  background-color: #F3F4F6;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--color-bordes);
+}
+
+.tarjeta-nino-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarjeta-nino-nombre {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-texto-principal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
+}
+
+.tarjeta-nino-meta {
+  font-size: 0.8125rem;
+  color: var(--color-texto-secundario);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.625rem;
+}
+
+/* Ficha de detalles del niño */
+.detalle-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.detalle-foto-tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.detalle-foto-marco {
+  width: 170px;
+  height: 220px;
+  border-radius: var(--radio-md);
+  border: 3px solid var(--color-bordes);
+  background-color: #F3F4F6;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sombra-md);
+}
+
+.detalle-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detalle-datos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.dato-fila {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-bordes);
+}
+
+.dato-etiqueta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-texto-secundario);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.dato-valor {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-texto-principal);
+  word-break: break-word;
+}
+
+/* Pantalla de confirmación de registro */
+.exito-registro-caja {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-bordes);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-md);
+  max-width: 560px;
+  margin: 2rem auto;
+}
+
+.exito-icono {
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-verde-suave);
+  color: var(--color-verde-oscuro);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ====================================================================
+   MEDIA QUERIES (TABLETS Y COMPUTADORAS >= 640px y >= 900px)
+   ==================================================================== */
+
+@media (min-width: 640px) {
+  .grid-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .barra-busqueda-admin {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .barra-busqueda-admin .busqueda-input-wrapper {
+    flex: 2;
+  }
+
+  .barra-busqueda-admin .filtro-control {
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .detalle-datos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .formulario-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .formulario-2-col-completo {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 900px) {
+  .grid-2-col {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detalle-layout {
+    grid-template-columns: 240px 1fr;
+    align-items: start;
+  }
+
+  /* En computadoras mostramos la tabla completa en vez de solo tarjetas */
+  .lista-tarjetas-movil {
+    display: none;
+  }
+
+  .tabla-contenedor-escritorio {
+    display: block;
+  }
+}
+
+@media (max-width: 899px) {
+  .tabla-contenedor-escritorio {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 899px) {
+  .cabecera-inner {
+    height: auto;
+    min-height: 70px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .nav-enlaces {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 639px) {
+  .cabecera-inner {
+    height: auto;
+    min-height: 60px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.25rem;
+  }
+
+  .nav-enlaces {
+    order: 3;
+    display: flex !important;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.25rem;
+  }
+
+  .nav-enlaces a {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    white-space: normal;
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  .logo-imagen {
+    height: 40px;
+    max-width: min(180px, 48vw);
+  }
+
+  .cabecera-acciones {
+    margin-left: auto;
+    gap: 0.375rem;
+  }
+
+  .cabecera-acciones .btn {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .btn {
+    min-height: 44px; /* Touch target móvil */
+  }
+
+  .contenedor {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .tarjeta {
+    padding: 1rem;
+  }
+
+  .tarjeta-header {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .tarjeta-header > a,
+  .tarjeta-header > button {
+    width: 100%;
+  }
+
+  .tarjeta-titulo {
+    font-size: 1.125rem;
+  }
+
+  .tarjeta-subtitulo {
+    font-size: 0.8125rem;
+  }
+
+  .grid-stats {
+    gap: 0.625rem;
+  }
+
+  .stat-tarjeta {
+    padding: 0.875rem;
+  }
+
+  .stat-valor {
+    font-size: 1.5rem;
+  }
+
+  .formulario-2-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .input-control,
+  .select-control,
+  .textarea-control {
+    font-size: 1rem;
+  }
+
+  .seccion-foto {
+    padding: 0.875rem;
+  }
+
+  .foto-acciones {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .foto-acciones .btn {
+    width: 100%;
+  }
+
+  .camara-modal {
+    padding: 0.5rem;
+  }
+
+  .camara-dialogo {
+    max-height: calc(100dvh - 1rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .camara-visor-video {
+    height: auto;
+    min-height: 0;
+    max-height: 55dvh;
+    aspect-ratio: 4 / 3;
+  }
+
+  .camara-controles {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .camara-controles .btn {
+    width: 100%;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-caja {
+    width: 100%;
+    max-width: none;
+    max-height: 92dvh;
+    border-radius: var(--radio-lg) var(--radio-lg) 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .modal-titulo {
+    font-size: 1rem;
+  }
+
+  .modal-cuerpo {
+    padding: 1rem;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  .export-columnas-lista {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .export-columnas-cabecera {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .paginacion-barra {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .paginacion-botones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .paginacion-botones .btn {
+    width: 100%;
+  }
+
+  .barra-acciones-detalle {
+    width: 100%;
+  }
+
+  .barra-acciones-detalle .btn {
+    flex: 1 1 100%;
+  }
+
+  .detalle-foto-marco {
+    width: 145px;
+    height: 185px;
+  }
+
+  .exito-registro-caja {
+    margin: 1rem auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .exito-registro-caja > div:last-child .btn {
+    width: 100%;
+  }
+
+  .pie-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .contenedor {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+}
+
+@media (max-width: 359px) {
+  .cabecera-inner {
+    column-gap: 0.375rem;
+  }
+
+  .logo-imagen {
+    max-width: 44vw;
+  }
+
+  .cabecera-acciones .btn {
+    padding-right: 0.375rem;
+    padding-left: 0.375rem;
+  }
+
+  .grid-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tarjeta-nino-movil {
+    gap: 0.625rem;
+    padding: 0.75rem;
+  }
+
+  .tarjeta-nino-miniatura {
+    width: 44px;
+    height: 58px;
+  }
+}

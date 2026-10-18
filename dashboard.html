@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directorio y Estadísticas — ONN Operación Niño de la Navidad</title>
+  <meta name="description" content="Directorio y control de registros de niños de la Operación Niño de la Navidad.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.118.0"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ENCABEZADO UNIFICADO Y RÁPIDO -->
+  <header class="cabecera-onn">
+    <div class="contenedor cabecera-inner">
+      <a href="/" class="logo-enlace">
+        <img src="/assets/logo-onn.svg" alt="ONN - Operación Niño de la Navidad" class="logo-imagen">
+      </a>
+
+      <!-- Navegación directa -->
+      <nav class="nav-enlaces" style="display: flex;">
+        <a href="/">
+          Registro de Niños
+        </a>
+        <a href="/dashboard.html" class="activo" style="border-bottom: 2px solid var(--color-verde-principal); padding-bottom: 4px;">
+          Directorio y Estadísticas
+        </a>
+      </nav>
+
+      <div class="cabecera-acciones">
+        <a href="/" class="btn btn-sm btn-primario">
+          + Nuevo Registro
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO DEL DIRECTORIO -->
+  <main class="contenedor" style="padding-top: 1.5rem; padding-bottom: 3.5rem;">
+
+    <!-- BARRA SUPERIOR DE ACCIONES -->
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <h1 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--color-verde-oscuro); letter-spacing: -0.02em;">
+          Directorio y Control de Niños ONN
+        </h1>
+        <p style="font-size: 0.875rem; color: var(--color-texto-secundario);">
+          Consulta, búsqueda instantánea, edición, fichas e impresión de niños participantes.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button type="button" id="btn-exportar-csv" class="btn btn-secundario">
+          Exportar datos
+        </button>
+        <a href="/" class="btn btn-primario">
+          + Registrar Nuevo Niño
+        </a>
+      </div>
+    </div>
+
+    <!-- CUADRÍCULA DE ESTADÍSTICAS REALES DIRECTAS -->
+    <div class="grid-stats">
+      <div class="stat-tarjeta">
+        <span class="stat-etiqueta">Total Niños</span>
+        <span id="stat-total-ninos" class="stat-valor">0</span>
+        <span class="stat-desc">Registrados en la BD</span>
+      </div>
+
+      <div class="stat-tarjeta">
+        <span class="stat-etiqueta">Varones</span>
+        <span id="stat-ninos-varones" class="stat-valor">0</span>
+        <span class="stat-desc">Masculino</span>
+      </div>
+
+      <div class="stat-tarjeta">
+        <span class="stat-etiqueta">Mujeres</span>
+        <span id="stat-ninas-mujeres" class="stat-valor">0</span>
+        <span class="stat-desc">Femenino</span>
+      </div>
+
+      <div class="stat-tarjeta">
+        <span class="stat-etiqueta">Con Fotografía</span>
+        <span id="stat-con-foto" class="stat-valor">0</span>
+        <span class="stat-desc">En Storage</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE BÚSQUEDA Y LISTADO -->
+    <div class="tarjeta">
+      <div class="tarjeta-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <h2 class="tarjeta-titulo">Directorio de Registros</h2>
+          <p class="tarjeta-subtitulo">Búsqueda rápida por nombre completo o número de cédula (CI).</p>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda Inteligente -->
+      <div class="barra-busqueda-admin">
+        <div class="busqueda-input-wrapper">
+          <input 
+            type="search" 
+            id="busqueda-input" 
+            class="input-control" 
+            placeholder="Escriba un nombre o número de CI para filtrar..." 
+            autocomplete="off"
+          >
+          <button type="button" id="busqueda-limpiar" class="busqueda-limpiar" title="Limpiar búsqueda">✕</button>
+        </div>
+
+        <select id="filtro-genero" class="select-control filtro-control">
+          <option value="todos">Todos los géneros</option>
+          <option value="Masculino">Solo Varones</option>
+          <option value="Femenino">Solo Mujeres</option>
+        </select>
+      </div>
+
+      <!-- Tabla para Computadoras -->
+      <div class="tabla-contenedor tabla-contenedor-escritorio">
+        <table class="tabla-onn">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">Foto</th>
+              <th>Nombre Completo</th>
+              <th>CI / Documento</th>
+              <th>Edad</th>
+              <th>Teléfono Tutor</th>
+              <th>Género</th>
+              <th>Fecha Registro</th>
+              <th style="text-align: right;">Ficha</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-ninos-body">
+            <!-- Se llena dinámicamente con js/buscador.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Lista de Tarjetas para Dispositivos Móviles -->
+      <div id="lista-resultados" class="lista-tarjetas-movil">
+        <!-- Se llena dinámicamente con js/buscador.js en celular -->
+      </div>
+
+      <!-- Paginación -->
+      <div id="paginacion-ninos" class="paginacion-barra"></div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL DE EXPORTACIÓN -->
+  <div id="modal-exportacion" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="export-titulo">
+    <div class="modal-caja" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3 id="export-titulo" class="modal-titulo">Exportar registros</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-exportacion" aria-label="Cerrar">×</button>
+      </div>
+      <div class="modal-cuerpo">
+        <div class="grupo-formulario">
+          <label for="export-tabla" class="campo-etiqueta">Tabla</label>
+          <select id="export-tabla" class="select-control"></select>
+          <span class="campo-ayuda">Solo se muestran tablas de registros disponibles para este sistema.</span>
+        </div>
+
+        <div class="grupo-formulario">
+          <div class="export-columnas-cabecera">
+            <span class="campo-etiqueta">Columnas</span>
+            <div>
+              <button type="button" class="btn btn-sm btn-suave" id="btn-export-seleccionar-todas">Seleccionar todas</button>
+              <button type="button" class="btn btn-sm btn-secundario" id="btn-export-limpiar-columnas">Limpiar</button>
+            </div>
+          </div>
+          <div id="export-columnas" class="export-columnas-lista"></div>
+        </div>
+
+        <p class="campo-ayuda">
+          Se aplicarán la búsqueda y el filtro de género actuales. Para PDF, usa la opción «Guardar como PDF» en el diálogo de impresión.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secundario" id="btn-cancelar-exportacion">Cancelar</button>
+        <button type="button" class="btn btn-secundario" data-exportar-formato="csv">Descargar CSV</button>
+        <button type="button" class="btn btn-primario" data-exportar-formato="pdf">Imprimir / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURACIÓN Y SCRIPTS SQL DE SUPABASE -->
+  <div id="modal-config-supabase" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-caja" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-titulo">Configuración de Base de Datos Supabase</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-config-supabase">×</button>
+      </div>
+      <div class="modal-cuerpo">
+        
+        <!-- Pestañas de Navegación -->
+        <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--color-bordes); margin-bottom: 1.25rem;">
+          <button type="button" class="btn btn-sm btn-suave" id="tab-btn-credenciales">Credenciales</button>
+          <button type="button" class="btn btn-sm btn-secundario" id="tab-btn-sql-schema">Schema SQL</button>
+          <button type="button" class="btn btn-sm btn-secundario" id="tab-btn-sql-policies">RLS Policies</button>
+          <button type="button" class="btn btn-sm btn-secundario" id="tab-btn-sql-storage">Storage SQL</button>
+        </div>
+
+        <!-- Panel 1: Credenciales -->
+        <div id="panel-tab-credenciales">
+          <p style="font-size: 0.8125rem; color: var(--color-texto-secundario); margin-bottom: 0.75rem;">
+            <strong>Tip rápido:</strong> Puedes insertar tu URL y tu Anon Key directamente en <code>js/config.js</code> en el código fuente, o guardarlas aquí en tu navegador:
+          </p>
+          <form id="form-config-supabase">
+            <div id="resultado-test-conexion" class="alerta" style="display: none;"></div>
+
+            <div class="grupo-formulario">
+              <label for="cfg-supabase-url" class="campo-etiqueta">Supabase URL</label>
+              <input type="url" id="cfg-supabase-url" class="input-control ci-mono" placeholder="https://tu-proyecto.supabase.co" required>
+            </div>
+
+            <div class="grupo-formulario">
+              <label for="cfg-supabase-key" class="campo-etiqueta">Supabase Anon Public Key</label>
+              <textarea id="cfg-supabase-key" class="textarea-control ci-mono" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+              <button type="button" class="btn btn-secundario" id="btn-test-conexion">Probar Conexión</button>
+              <button type="submit" class="btn btn-primario">Guardar Credenciales</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Panel 2: Schema SQL -->
+        <div id="panel-tab-sql-schema" style="display: none;">
+          <p style="font-size: 0.8125rem; color: var(--color-texto-secundario); margin-bottom: 0.5rem;">
+            Ejecuta este script en el <strong>SQL Editor</strong> de Supabase para crear la tabla <code>ninos</code> y la restricción única de CI:
+          </p>
+          <textarea id="sql-schema-texto" class="textarea-control ci-mono" rows="8" readonly style="font-size: 0.75rem; background: #F9FAFB;"></textarea>
+          <button type="button" class="btn btn-sm btn-suave" style="margin-top: 0.5rem;" onclick="navigator.clipboard.writeText(document.getElementById('sql-schema-texto').value); alert('Script SQL copiado.');">
+            Copiar Schema SQL
+          </button>
+        </div>
+
+        <!-- Panel 3: Policies SQL -->
+        <div id="panel-tab-sql-policies" style="display: none;">
+          <p style="font-size: 0.8125rem; color: var(--color-texto-secundario); margin-bottom: 0.5rem;">
+            Políticas para permitir acceso total directo a la tabla con la Anon Key sin contraseñas:
+          </p>
+          <textarea id="sql-policies-texto" class="textarea-control ci-mono" rows="8" readonly style="font-size: 0.75rem; background: #F9FAFB;"></textarea>
+          <button type="button" class="btn btn-sm btn-suave" style="margin-top: 0.5rem;" onclick="navigator.clipboard.writeText(document.getElementById('sql-policies-texto').value); alert('Políticas copiadas.');">
+            Copiar Políticas
+          </button>
+        </div>
+
+        <!-- Panel 4: Storage SQL -->
+        <div id="panel-tab-sql-storage" style="display: none;">
+          <p style="font-size: 0.8125rem; color: var(--color-texto-secundario); margin-bottom: 0.5rem;">
+            Creación del bucket <code>onn-fotos</code> con acceso directo para carga y visualización rápida de fotos:
+          </p>
+          <textarea id="sql-storage-texto" class="textarea-control ci-mono" rows="8" readonly style="font-size: 0.75rem; background: #F9FAFB;"></textarea>
+          <button type="button" class="btn btn-sm btn-suave" style="margin-top: 0.5rem;" onclick="navigator.clipboard.writeText(document.getElementById('sql-storage-texto').value); alert('Script Storage copiado.');">
+            Copiar Storage SQL
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="pie-onn">
+    <div class="contenedor pie-inner">
+      <div>ONN — Operación Niño de la Navidad &copy; 2026. Directorio General.</div>
+      <div class="pie-enlaces">
+        <a href="/">Formulario de Registro</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { BuscadorNinos } from '/js/buscador.js';
+    import { ModuloAdministracion } from '/js/administracion.js';
+    import { ModuloExportacion } from '/js/exportacion.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Inicializar buscador inteligente directo sin barrera de login
+      new BuscadorNinos({
+        inputId: 'busqueda-input',
+        btnLimpiarId: 'busqueda-limpiar',
+        resultadosId: 'lista-resultados',
+        tablaBodyId: 'tabla-ninos-body',
+        paginacionId: 'paginacion-ninos',
+        filtroGeneroId: 'filtro-genero',
+        porPagina: 10
+      });
+
+      // 2. Inicializar módulo de administración y estadísticas
+      new ModuloAdministracion();
+
+      // 3. Enlazar configuración de exportación
+      const btnExportar = document.getElementById('btn-exportar-csv');
+      const modalExportacion = document.getElementById('modal-exportacion');
+      const cerrarModalExportacion = () => modalExportacion?.classList.remove('abierto');
+
+      if (btnExportar) {
+        btnExportar.addEventListener('click', () => {
+          try {
+            ModuloExportacion.abrirConfiguracion();
+          } catch (err) {
+            console.error('Error al abrir la configuración de exportación:', err);
+            alert(err.message);
+          }
+        });
+      }
+
+      document.getElementById('export-tabla')?.addEventListener('change', (event) => {
+        ModuloExportacion.actualizarColumnas(event.currentTarget.value);
+      });
+      document.getElementById('btn-export-seleccionar-todas')?.addEventListener('click', () => {
+        ModuloExportacion.seleccionarColumnas(true);
+      });
+      document.getElementById('btn-export-limpiar-columnas')?.addEventListener('click', () => {
+        ModuloExportacion.seleccionarColumnas(false);
+      });
+      document.getElementById('btn-cerrar-exportacion')?.addEventListener('click', cerrarModalExportacion);
+      document.getElementById('btn-cancelar-exportacion')?.addEventListener('click', cerrarModalExportacion);
+      modalExportacion?.addEventListener('click', (event) => {
+        if (event.target === modalExportacion) cerrarModalExportacion();
+      });
+      document.querySelectorAll('[data-exportar-formato]').forEach((boton) => {
+        boton.addEventListener('click', async () => {
+          const termino = document.getElementById('busqueda-input')?.value.trim() || '';
+          const genero = document.getElementById('filtro-genero')?.value || 'todos';
+          cerrarModalExportacion();
+          await ModuloExportacion.exportar(boton.dataset.exportarFormato, termino, genero);
+        });
+      });
+
+      // 4. Cargar código SQL en el modal
+      cargarScriptsEnModal();
+    });
+
+    async function cargarScriptsEnModal() {
+      try {
+        const [resSchema, resPolicies, resStorage] = await Promise.all([
+          fetch('/supabase/schema.sql').then(r => r.text()),
+          fetch('/supabase/policies.sql').then(r => r.text()),
+          fetch('/supabase/storage.sql').then(r => r.text()),
+        ]);
+        document.getElementById('sql-schema-texto').value = resSchema;
+        document.getElementById('sql-policies-texto').value = resPolicies;
+        document.getElementById('sql-storage-texto').value = resStorage;
+      } catch (e) {
+        console.warn('Error al precargar archivos SQL:', e);
+      }
+
+      const tabs = [
+        { btn: 'tab-btn-credenciales', panel: 'panel-tab-credenciales' },
+        { btn: 'tab-btn-sql-schema', panel: 'panel-tab-sql-schema' },
+        { btn: 'tab-btn-sql-policies', panel: 'panel-tab-sql-policies' },
+        { btn: 'tab-btn-sql-storage', panel: 'panel-tab-sql-storage' },
+      ];
+
+      tabs.forEach(({ btn, panel }) => {
+        const elBtn = document.getElementById(btn);
+        if (!elBtn) return;
+        elBtn.addEventListener('click', () => {
+          tabs.forEach(t => {
+            document.getElementById(t.btn).className = 'btn btn-sm btn-secundario';
+            document.getElementById(t.panel).style.display = 'none';
+          });
+          elBtn.className = 'btn btn-sm btn-suave';
+          document.getElementById(panel).style.display = 'block';
+        });
+      });
+    }
+  </script>
+</body>
+</html>

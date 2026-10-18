@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONN — Operación Niño de la Navidad | Registro</title>
+  <meta name="description" content="Sistema oficial de registro y gestión de niños de la Operación Niño de la Navidad (ONN).">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.118.0"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ENCABEZADO PRINCIPAL UNIFICADO Y RÁPIDO -->
+  <header class="cabecera-onn">
+    <div class="contenedor cabecera-inner">
+      <a href="/" class="logo-enlace" aria-label="Inicio ONN">
+        <img src="/assets/logo-onn.svg" alt="Logotipo ONN" class="logo-imagen">
+      </a>
+
+      <!-- Navegación directa entre Registro y Directorio -->
+      <nav class="nav-enlaces" style="display: flex;">
+        <a href="/" class="activo" style="border-bottom: 2px solid var(--color-verde-principal); padding-bottom: 4px;">
+          Registro de Niños
+        </a>
+        <a href="/dashboard.html">
+          Directorio y Estadísticas
+        </a>
+      </nav>
+
+      <div class="cabecera-acciones">
+        <a href="/dashboard.html" class="btn btn-sm btn-suave">
+          Ver Directorio →
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER DE ESTADO DE CONEXIÓN CON SUPABASE -->
+  <div id="banner-configuracion" style="display: none; background: #FEF3C7; border-bottom: 1px solid #FCD34D; padding: 0.6rem 1rem; font-size: 0.8125rem; color: #92400E; text-align: center;">
+    <strong>Atención:</strong> Puedes colocar tu <code>SUPABASE_URL</code> y <code>ANON_KEY</code> directamente en el archivo <code>js/config.js</code> o
+    <button type="button" id="btn-abrir-config-desde-banner" style="background: none; border: none; text-decoration: underline; font-weight: 700; color: #78350F; cursor: pointer; padding: 0;">
+      hacer clic aquí para guardarlas desde la pantalla
+    </button>.
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenedor" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <!-- Alerta Global -->
+    <div id="alerta-global" class="alerta" style="display: none;" role="alert"></div>
+
+    <!-- SECCIÓN DE FORMULARIO DE REGISTRO -->
+    <section id="seccion-formulario" style="max-width: 680px; margin: 0 auto;">
+      <div class="tarjeta">
+        <div class="tarjeta-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+          <div>
+            <h1 class="tarjeta-titulo" style="font-size: 1.4rem; color: var(--color-verde-oscuro);">
+              Registro de Niño Participante
+            </h1>
+            <p class="tarjeta-subtitulo">
+              Ingrese los datos del menor. Se guardarán directamente en su base de datos de Supabase.
+            </p>
+          </div>
+        </div>
+
+        <form id="form-registro-nino" novalidate>
+
+          <!-- 1. Nombre Completo -->
+          <div class="grupo-formulario">
+            <label for="nombre_completo" class="campo-etiqueta">
+              Nombre completo del niño <span class="campo-requerido">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="nombre_completo" 
+              name="nombre_completo" 
+              class="input-control" 
+              placeholder="Ej. Juan Carlos Mamani Flores" 
+              autocomplete="name" 
+              required
+              maxlength="160"
+            >
+            <span class="campo-ayuda">Nombres y apellidos completos.</span>
+            <span id="error-nombre_completo" class="campo-error-msg"></span>
+          </div>
+
+          <!-- Cuadrícula para CI y Edad -->
+          <div class="formulario-2-col">
+            <!-- 2. CI (Documento) -->
+            <div class="grupo-formulario">
+              <label for="ci" class="campo-etiqueta">
+                Cédula de Identidad (CI) <span class="campo-requerido">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="ci" 
+                name="ci" 
+                class="input-control ci-mono" 
+                placeholder="Ej. 8492019 o 8492019-1A" 
+                required
+                maxlength="30"
+              >
+              <span class="campo-ayuda">Texto sin espacios (único en el sistema).</span>
+              <span id="error-ci" class="campo-error-msg"></span>
+            </div>
+
+            <!-- 3. Edad -->
+            <div class="grupo-formulario">
+              <label for="edad" class="campo-etiqueta">
+                Edad (años cumplidos) <span class="campo-requerido">*</span>
+              </label>
+              <input 
+                type="number" 
+                id="edad" 
+                name="edad" 
+                class="input-control num" 
+                placeholder="Ej. 8" 
+                min="1" 
+                max="18" 
+                step="1" 
+                required
+              >
+              <span class="campo-ayuda">Rango: 1 a 18 años.</span>
+              <span id="error-edad" class="campo-error-msg"></span>
+            </div>
+          </div>
+
+          <!-- Cuadrícula para Teléfono del Tutor y Género -->
+          <div class="formulario-2-col">
+            <!-- 4. Teléfono del Tutor -->
+            <div class="grupo-formulario">
+              <label for="telefono_tutor" class="campo-etiqueta">
+                Teléfono del tutor <span class="campo-requerido">*</span>
+              </label>
+              <input 
+                type="tel" 
+                id="telefono_tutor" 
+                name="telefono_tutor" 
+                class="input-control ci-mono" 
+                placeholder="Ej. +591 71234567 o 71234567" 
+                autocomplete="tel" 
+                required
+                maxlength="30"
+              >
+              <span class="campo-ayuda">Número de contacto para coordinar la entrega.</span>
+              <span id="error-telefono_tutor" class="campo-error-msg"></span>
+            </div>
+
+            <!-- 5. Género -->
+            <div class="grupo-formulario">
+              <label for="genero" class="campo-etiqueta">
+                Género <span class="campo-requerido">*</span>
+              </label>
+              <select id="genero" name="genero" class="select-control" required>
+                <option value="" disabled selected>Seleccione opción...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+              </select>
+              <span class="campo-ayuda">Para asignación del regalo.</span>
+              <span id="error-genero" class="campo-error-msg"></span>
+            </div>
+          </div>
+
+          <!-- 6. Fotografía de Carnet Opcional -->
+          <div class="grupo-formulario">
+            <label class="campo-etiqueta">
+              Fotografía de carnet <span style="font-weight: normal; color: var(--color-texto-secundario);">(Opcional)</span>
+            </label>
+
+            <div class="seccion-foto">
+              <div class="foto-contenedor-previa" id="contenedor-foto-previa">
+                <img id="img-previa-foto" class="foto-previa-img" alt="Vista previa de carnet" style="display: none;">
+                <div id="foto-placeholder" class="foto-placeholder-icono">
+                  <span>Sin foto</span>
+                </div>
+              </div>
+
+              <!-- Input de archivo -->
+              <input type="file" id="input-foto-archivo" accept="image/jpeg,image/png,image/webp" style="display: none;">
+
+              <div class="foto-acciones">
+                <button type="button" class="btn btn-sm btn-secundario" id="btn-seleccionar-foto">
+                  Seleccionar Foto
+                </button>
+                <button type="button" class="btn btn-sm btn-suave" id="btn-abrir-camara">
+                  Tomar con Cámara
+                </button>
+                <button type="button" class="btn btn-sm btn-peligro-suave" id="btn-quitar-foto" style="display: none;">
+                  ✕ Quitar Foto
+                </button>
+              </div>
+              <span class="campo-ayuda" style="margin-top: 0.5rem;">Formatos aceptados: JPG, PNG o WebP. Máximo 5 MB.</span>
+            </div>
+          </div>
+
+          <!-- Consentimiento -->
+          <div class="grupo-formulario" style="background-color: var(--color-verde-suave); padding: 0.875rem; border-radius: var(--radio-md); border: 1px solid #C8E6C9;">
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem; color: #1B5E20; font-weight: 600;">
+              <input type="checkbox" id="check-consentimiento" required checked style="margin-top: 0.2rem; accent-color: var(--color-verde-principal);">
+              <span>Confirmo que cuento con autorización como padre o tutor responsable para registrar al menor en la Operación Niño de la Navidad.</span>
+            </label>
+          </div>
+
+          <!-- Botón de Envío -->
+          <div style="margin-top: 1.5rem;">
+            <button type="submit" id="btn-submit-registro" class="btn btn-primario btn-bloque" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+              Guardar Registro de Niño
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE CONFIRMACIÓN DE ÉXITO -->
+    <section id="seccion-exito" style="display: none;">
+      <div class="exito-registro-caja">
+        <div class="exito-icono">✓</div>
+        <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--color-verde-oscuro); margin-bottom: 0.5rem;">
+          ¡Niño Registrado Correctamente!
+        </h2>
+        <p style="color: var(--color-texto-secundario); font-size: 0.9375rem; margin-bottom: 1.25rem;">
+          El registro de <strong id="exito-nombre" style="color: var(--color-texto-principal);"></strong> ha sido almacenado en Supabase.
+        </p>
+
+        <div style="background-color: var(--color-fondo); border: 1px dashed var(--color-bordes); border-radius: var(--radio-md); padding: 1rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-texto-secundario); font-weight: 600;">
+            Código de Registro
+          </div>
+          <div id="exito-folio" class="ci-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--color-verde-principal); margin-top: 0.25rem;">
+            ONN-000000
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <button type="button" id="btn-nuevo-registro" class="btn btn-primario">
+            + Registrar Otro Niño
+          </button>
+          <a href="/dashboard.html" class="btn btn-secundario">
+            Ir al Directorio de Niños
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL DE CÁMARA EN VIVO -->
+  <div id="modal-camara" class="camara-modal" role="dialog" aria-modal="true" aria-labelledby="camara-titulo">
+    <div class="camara-dialogo">
+      <div style="padding: 1rem; border-bottom: 1px solid var(--color-bordes); display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="camara-titulo" style="font-size: 1rem; font-weight: 700;">Tomar Fotografía con Cámara</h3>
+        <button type="button" id="btn-cerrar-camara" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--color-texto-secundario);">✕</button>
+      </div>
+
+      <video id="video-camara" class="camara-visor-video" playsinline autoplay muted></video>
+
+      <div class="camara-controles">
+        <button type="button" class="btn btn-sm btn-secundario" id="btn-cambiar-camara">
+          Cambiar Cámara
+        </button>
+        <button type="button" class="btn btn-primario" id="btn-disparar-foto">
+          Capturar Foto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURACIÓN DE SUPABASE -->
+  <div id="modal-config-supabase" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-caja">
+      <div class="modal-header">
+        <h3 class="modal-titulo">Configuración de Base de Datos Supabase</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-config-supabase">×</button>
+      </div>
+      <form id="form-config-supabase">
+        <div class="modal-cuerpo">
+          <p style="font-size: 0.875rem; color: var(--color-texto-secundario); margin-bottom: 1rem;">
+            Puedes insertar tu URL y tu Anon Key directamente en el archivo <code>js/config.js</code> o guardarlas aquí en tu navegador:
+          </p>
+
+          <div id="resultado-test-conexion" class="alerta" style="display: none;"></div>
+
+          <div class="grupo-formulario">
+            <label for="cfg-supabase-url" class="campo-etiqueta">Supabase Project URL</label>
+            <input type="url" id="cfg-supabase-url" class="input-control ci-mono" placeholder="https://tu-proyecto.supabase.co" required>
+            <span class="campo-ayuda">Ejemplo: https://xyzcompany.supabase.co</span>
+          </div>
+
+          <div class="grupo-formulario">
+            <label for="cfg-supabase-key" class="campo-etiqueta">Supabase Anon Public Key</label>
+            <textarea id="cfg-supabase-key" class="textarea-control ci-mono" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required></textarea>
+            <span class="campo-ayuda">Clave pública 'anon public' obtenida en Supabase > Settings > API.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secundario" id="btn-test-conexion">Probar Conexión</button>
+          <button type="submit" class="btn btn-primario">Guardar y Conectar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="pie-onn">
+    <div class="contenedor pie-inner">
+      <div>ONN — Operación Niño de la Navidad &copy; 2026.</div>
+      <div class="pie-enlaces">
+        <a href="/dashboard.html">Directorio y Estadísticas</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { ModuloRegistro } from '/js/registro.js';
+    import { getActiveConfig, saveActiveConfig, isConfigured, testConnection } from '/js/supabase-client.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Inicializar formulario de registro
+      const registro = new ModuloRegistro('form-registro-nino');
+
+      const btnNuevo = document.getElementById('btn-nuevo-registro');
+      if (btnNuevo) {
+        btnNuevo.addEventListener('click', () => registro.reiniciarFormulario());
+      }
+
+      // 2. Verificar si está configurado para mostrar u ocultar el banner
+      const banner = document.getElementById('banner-configuracion');
+      if (banner) {
+        banner.style.display = isConfigured() ? 'none' : 'block';
+      }
+
+      // 3. Modal de Configuración
+      const btnBannerConfig = document.getElementById('btn-abrir-config-desde-banner');
+      const modalConfig = document.getElementById('modal-config-supabase');
+      const btnCerrarConfig = document.getElementById('btn-cerrar-config-supabase');
+      const formConfig = document.getElementById('form-config-supabase');
+      const btnTest = document.getElementById('btn-test-conexion');
+      const resTest = document.getElementById('resultado-test-conexion');
+
+      const abrirModal = () => {
+        const cfg = getActiveConfig();
+        document.getElementById('cfg-supabase-url').value = cfg.url || '';
+        document.getElementById('cfg-supabase-key').value = cfg.anonKey || '';
+        if (resTest) resTest.style.display = 'none';
+        modalConfig.classList.add('abierto');
+      };
+
+      if (btnBannerConfig) btnBannerConfig.addEventListener('click', abrirModal);
+      if (btnCerrarConfig) btnCerrarConfig.addEventListener('click', () => modalConfig.classList.remove('abierto'));
+
+      if (formConfig) {
+        formConfig.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const url = document.getElementById('cfg-supabase-url').value;
+          const key = document.getElementById('cfg-supabase-key').value;
+          saveActiveConfig(url, key);
+          alert('Configuración guardada exitosamente.');
+          modalConfig.classList.remove('abierto');
+          window.location.reload();
+        });
+      }
+
+      if (btnTest) {
+        btnTest.addEventListener('click', async () => {
+          resTest.style.display = 'block';
+          resTest.className = 'alerta alerta-info';
+          resTest.innerHTML = 'Verificando...';
+          const r = await testConnection();
+          resTest.className = r.ok ? 'alerta alerta-exito' : 'alerta alerta-error';
+          resTest.textContent = r.mensaje;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

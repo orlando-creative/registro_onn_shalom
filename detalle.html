@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha del Niño — ONN Operación Niño de la Navidad</title>
+  <meta name="description" content="Ficha individual y gestión de registro del niño en ONN.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/print.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.118.0"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ENCABEZADO (OCULTO AL IMPRIMIR) -->
+  <header class="cabecera-onn no-imprimir">
+    <div class="contenedor cabecera-inner">
+      <a href="/dashboard.html" class="logo-enlace">
+        <img src="/assets/logo-onn.svg" alt="ONN - Operación Niño de la Navidad" class="logo-imagen">
+      </a>
+      
+      <nav class="nav-enlaces" style="display: flex;">
+        <a href="/">
+          Registro de Niños
+        </a>
+        <a href="/dashboard.html" class="activo" style="border-bottom: 2px solid var(--color-verde-principal); padding-bottom: 4px;">
+          Directorio y Estadísticas
+        </a>
+      </nav>
+
+      <div class="cabecera-acciones">
+        <a href="/dashboard.html" class="btn btn-sm btn-secundario">
+          ← Volver al Directorio
+        </a>
+        <a href="/" class="btn btn-sm btn-primario">
+          + Nuevo Registro
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO DE LA FICHA (PANTALLA DIGITAL) -->
+  <main class="contenedor no-imprimir" style="padding-top: 1.5rem; padding-bottom: 3.5rem;">
+
+    <!-- Alerta en caso de error de carga -->
+    <div id="detalle-error-alerta" class="alerta alerta-error" style="display: none;" role="alert"></div>
+
+    <!-- Indicador de Carga -->
+    <div id="detalle-cargando" style="text-align: center; padding: 4rem 1rem;">
+      <span class="spinner" style="border-top-color: var(--color-verde-principal); width: 2.5rem; height: 2.5rem;"></span>
+      <p style="margin-top: 1rem; color: var(--color-texto-secundario); font-weight: 500;">
+        Recuperando expediente del niño...
+      </p>
+    </div>
+
+    <!-- Contenido Principal de Detalle -->
+    <div id="detalle-contenido" style="display: none;">
+
+      <!-- Barra Superior de la Ficha -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-bordes); padding-bottom: 1rem;">
+        <div>
+          <span style="font-size: 0.8125rem; font-weight: 600; color: var(--color-verde-oscuro); text-transform: uppercase; letter-spacing: 0.05em;">
+            Ficha Individual ONN
+          </span>
+          <h1 id="detalle-nombre-titulo" style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--color-texto-principal); letter-spacing: -0.02em;">
+            Cargando nombre...
+          </h1>
+        </div>
+
+        <!-- Acciones Principales -->
+        <div class="barra-acciones-detalle" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" id="btn-imprimir-ficha" class="btn btn-primario" title="Imprimir ficha oficial o guardar en PDF">
+            Imprimir Ficha Oficial
+          </button>
+          <button type="button" id="btn-abrir-editar" class="btn btn-secundario" title="Editar información del niño">
+            Editar Datos
+          </button>
+          <button type="button" id="btn-abrir-eliminar" class="btn btn-peligro-suave" title="Eliminar este registro">
+            Eliminar
+          </button>
+        </div>
+      </div>
+
+      <!-- Layout en 2 columnas: Foto a la izquierda, Datos a la derecha -->
+      <div class="tarjeta detalle-layout">
+
+        <!-- Columna de Fotografía de Carnet -->
+        <div class="detalle-foto-tarjeta">
+          <div class="detalle-foto-marco" id="detalle-foto-contenedor">
+            <img id="detalle-foto-img" class="detalle-foto-img" alt="Fotografía de carnet del niño" style="display: none;">
+            <div id="detalle-foto-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--color-texto-apagado); padding: 1rem;">
+              <span style="font-size: 0.75rem; font-weight: 500;">Sin fotografía adjunta</span>
+            </div>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--color-texto-secundario);">
+            Fotografía de carnet
+          </span>
+        </div>
+
+        <!-- Columna de Datos de Registro -->
+        <div>
+          <div class="detalle-datos-grid">
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Nombre Completo</span>
+              <span id="detalle-nombre" class="dato-valor">—</span>
+            </div>
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Cédula de Identidad (CI)</span>
+              <span id="detalle-ci" class="dato-valor ci-mono">—</span>
+            </div>
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Edad</span>
+              <span id="detalle-edad" class="dato-valor num">—</span>
+            </div>
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Género</span>
+              <span id="detalle-genero" class="dato-valor">—</span>
+            </div>
+
+            <div class="dato-fila" style="grid-column: span 1;">
+              <span class="dato-etiqueta">Teléfono del Tutor</span>
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <a id="detalle-telefono" href="#" class="dato-valor ci-mono" style="color: var(--color-verde-oscuro); text-decoration: none;">
+                  —
+                </a>
+                <a id="btn-whatsapp-tutor" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-suave" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">
+                  WhatsApp Tutor
+                </a>
+              </div>
+            </div>
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Fecha de Registro</span>
+              <span id="detalle-fecha-registro" class="dato-valor tabular-nums" style="font-size: 0.875rem; font-weight: 500;">—</span>
+            </div>
+
+            <div class="dato-fila">
+              <span class="dato-etiqueta">Última Actualización</span>
+              <span id="detalle-fecha-actualizacion" class="dato-valor tabular-nums" style="font-size: 0.875rem; font-weight: 500;">—</span>
+            </div>
+
+          </div>
+
+          <div style="margin-top: 1.5rem; padding: 0.875rem; background-color: var(--color-fondo); border: 1px solid var(--color-bordes); border-radius: var(--radio-md); font-size: 0.8125rem; color: var(--color-texto-secundario);">
+            Operación Niño de la Navidad (ONN). Expediente activo en la base de datos de Supabase.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       VISTA EXCLUSIVA PARA IMPRESIÓN (SOLO VISIBLE CON @media print)
+       ==================================================================== -->
+  <div class="ficha-imprimible" style="display: none;">
+    <div class="ficha-cabecera-print">
+      <img src="/assets/logo-onn.svg" alt="Logotipo ONN" class="ficha-logo-print">
+      <div>
+        <h1 class="ficha-titulo-doc">FICHA DE REGISTRO DEL NIÑO</h1>
+        <div class="ficha-subtitulo-doc">Operación Niño de la Navidad — Folio: <span id="print-folio"></span></div>
+      </div>
+    </div>
+
+    <div class="ficha-cuerpo-print">
+      <div class="ficha-foto-col">
+        <img id="print-foto-img" class="ficha-foto-print" alt="Foto de carnet" style="display: none;">
+        <div id="print-foto-placeholder" class="ficha-foto-placeholder-print">
+          Espacio para Fotografía de Carnet
+        </div>
+      </div>
+
+      <table class="ficha-tabla-print">
+        <tbody>
+          <tr>
+            <td class="etiqueta-print">Nombre Completo:</td>
+            <td class="valor-print" id="print-nombre" colspan="3">—</td>
+          </tr>
+          <tr>
+            <td class="etiqueta-print">Cédula de Identidad (CI):</td>
+            <td class="valor-print ci-mono" id="print-ci">—</td>
+            <td class="etiqueta-print">Edad:</td>
+            <td class="valor-print num" id="print-edad">—</td>
+          </tr>
+          <tr>
+            <td class="etiqueta-print">Género:</td>
+            <td class="valor-print" id="print-genero">—</td>
+            <td class="etiqueta-print">Fecha de Registro:</td>
+            <td class="valor-print" id="print-fecha">—</td>
+          </tr>
+          <tr>
+            <td class="etiqueta-print">Teléfono del Tutor:</td>
+            <td class="valor-print ci-mono" id="print-telefono" colspan="3">—</td>
+          </tr>
+          <tr>
+            <td class="etiqueta-print">Programa / Proyecto:</td>
+            <td class="valor-print" colspan="3">Operación Niño de la Navidad (ONN)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ficha-firmas-print">
+      <div class="firma-caja">
+        <div class="firma-titulo">Firma del Padre, Madre o Tutor</div>
+        <div style="font-size: 8pt; color: #6B7280; margin-top: 2px;">C.I. y Aclaración de Firma</div>
+      </div>
+
+      <div class="firma-caja">
+        <div class="firma-titulo">Responsable Autorizado ONN</div>
+        <div style="font-size: 8pt; color: #6B7280; margin-top: 2px;">Sello y Firma de Entrega / Verificación</div>
+      </div>
+    </div>
+
+    <div class="ficha-pie-print">
+      <span>Documento oficial de control de beneficiarios — ONN 2026.</span>
+      <span>Impreso desde el sistema de registro de niños.</span>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE EDICIÓN DE REGISTRO
+       ==================================================================== -->
+  <div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-caja" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-titulo">Editar Registro del Niño</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-editar">×</button>
+      </div>
+
+      <form id="form-editar-nino">
+        <div class="modal-cuerpo">
+
+          <div class="grupo-formulario">
+            <label for="edit-nombre" class="campo-etiqueta">Nombre completo <span class="campo-requerido">*</span></label>
+            <input type="text" id="edit-nombre" class="input-control" required maxlength="160">
+          </div>
+
+          <div class="formulario-2-col">
+            <div class="grupo-formulario">
+              <label for="edit-ci" class="campo-etiqueta">Cédula de Identidad (CI) <span class="campo-requerido">*</span></label>
+              <input type="text" id="edit-ci" class="input-control ci-mono" required maxlength="30">
+            </div>
+
+            <div class="grupo-formulario">
+              <label for="edit-edad" class="campo-etiqueta">Edad (años) <span class="campo-requerido">*</span></label>
+              <input type="number" id="edit-edad" class="input-control num" min="1" max="18" required>
+            </div>
+          </div>
+
+          <div class="formulario-2-col">
+            <div class="grupo-formulario">
+              <label for="edit-telefono" class="campo-etiqueta">Teléfono del tutor <span class="campo-requerido">*</span></label>
+              <input type="tel" id="edit-telefono" class="input-control ci-mono" required maxlength="30">
+            </div>
+
+            <div class="grupo-formulario">
+              <label for="edit-genero" class="campo-etiqueta">Género <span class="campo-requerido">*</span></label>
+              <select id="edit-genero" class="select-control" required>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Modificación de Foto de Carnet -->
+          <div class="grupo-formulario" style="border-top: 1px solid var(--color-bordes); padding-top: 1rem; margin-top: 1rem;">
+            <label class="campo-etiqueta">Fotografía de carnet</label>
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <img id="edit-foto-previa" style="width: 60px; height: 75px; object-fit: cover; border-radius: var(--radio-sm); border: 1px solid var(--color-bordes); display: none;" alt="Foto">
+              
+              <input type="file" id="edit-foto-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+              <button type="button" class="btn btn-sm btn-secundario" id="btn-edit-cambiar-foto">
+                Reemplazar Foto
+              </button>
+              <button type="button" class="btn btn-sm btn-peligro-suave" id="btn-edit-quitar-foto">
+                Quitar Foto
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-editar">Cancelar</button>
+          <button type="submit" id="btn-submit-editar" class="btn btn-primario">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE CONFIRMACIÓN DE ELIMINACIÓN
+       ==================================================================== -->
+  <div id="modal-eliminar" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-caja" style="max-width: 480px;">
+      <div class="modal-header" style="border-bottom-color: var(--color-rojo-suave);">
+        <h3 class="modal-titulo" style="color: var(--color-rojo-oscuro);">Confirmar Eliminación de Registro</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-eliminar">×</button>
+      </div>
+
+      <div class="modal-cuerpo">
+        <p style="margin-bottom: 0.75rem; font-size: 0.9375rem; color: var(--color-texto-principal); line-height: 1.45;">
+          ¿Está completamente seguro de eliminar el registro de <strong id="eliminar-nombre-nino" style="color: var(--color-rojo-oscuro);"></strong>?
+        </p>
+        <p style="font-size: 0.8125rem; color: var(--color-texto-secundario); background: #FFF5F5; padding: 0.75rem; border-radius: var(--radio-md); border: 1px solid #FED7D7;">
+          Esta acción eliminará el registro de la base de datos de Supabase y su fotografía asociada en Storage.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secundario" id="btn-cancelar-eliminar">Cancelar</button>
+        <button type="button" class="btn btn-peligro" id="btn-confirmar-eliminar">Sí, Eliminar Registro</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="pie-onn no-imprimir">
+    <div class="contenedor pie-inner">
+      <div>ONN — Operación Niño de la Navidad &copy; 2026.</div>
+      <div class="pie-enlaces">
+        <a href="/dashboard.html">Volver al Directorio</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { ModuloDetalle } from '/js/detalle.js';
+    import { ModuloImpresion } from '/js/impresion.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Obtener ID del niño desde la URL
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+
+      // 2. Cargar detalles inmediatamente sin bloqueo de sesión
+      new ModuloDetalle(id);
+
+      // 3. Botón de impresión
+      const btnImprimir = document.getElementById('btn-imprimir-ficha');
+      if (btnImprimir) {
+        btnImprimir.addEventListener('click', () => {
+          ModuloImpresion.imprimirFichaActual();
+        });
+      }
+    });
+  </script>
+</body>
+</html>

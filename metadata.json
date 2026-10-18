@@ -1,0 +1,10 @@
+{
+  "name": "ONN - Operación Niño de la Navidad",
+  "description": "Sistema de registro, gestión y fichas de niños para Operación Niño de la Navidad con Supabase.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

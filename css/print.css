@@ -1,0 +1,168 @@
+/* ====================================================================
+   ONN — Operación Niño de la Navidad
+   Estilos Especiales para Impresión de Fichas Oficiales
+   Archivo: css/print.css
+   ==================================================================== */
+
+@media print {
+  /* Configuración de página A4 / Carta */
+  @page {
+    size: letter portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  /* Reset de fondo para ahorro de tinta y nitidez */
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ocultar elementos de navegación, botones, alertas y pie digital */
+  .cabecera-onn,
+  .pie-onn,
+  .btn,
+  .modal-overlay,
+  .barra-acciones-detalle,
+  .alerta,
+  .no-imprimir,
+  .camara-modal {
+    display: none !important;
+  }
+
+  /* Contenedor de impresión */
+  .ficha-imprimible {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .ficha-cabecera-print {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-bottom: 2px solid #218838 !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .ficha-logo-print {
+    height: 50px !important;
+    width: auto !important;
+  }
+
+  .ficha-titulo-doc {
+    font-size: 16pt !important;
+    font-weight: 800 !important;
+    color: #166534 !important;
+    text-align: right !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .ficha-subtitulo-doc {
+    font-size: 9pt !important;
+    color: #4B5563 !important;
+    text-align: right !important;
+  }
+
+  /* Cuerpo de la ficha en dos columnas */
+  .ficha-cuerpo-print {
+    display: flex !important;
+    gap: 20px !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Fotografía de carnet */
+  .ficha-foto-col {
+    width: 140px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .ficha-foto-print {
+    width: 135px !important;
+    height: 175px !important;
+    border: 1px solid #9CA3AF !important;
+    object-fit: cover !important;
+    display: block !important;
+    background-color: #F3F4F6 !important;
+  }
+
+  .ficha-foto-placeholder-print {
+    width: 135px !important;
+    height: 175px !important;
+    border: 1px dashed #9CA3AF !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 8pt !important;
+    color: #6B7280 !important;
+    padding: 8px !important;
+  }
+
+  /* Tabla de datos del niño */
+  .ficha-tabla-print {
+    flex: 1 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .ficha-tabla-print td {
+    padding: 7px 10px !important;
+    border: 1px solid #D1D5DB !important;
+    font-size: 10pt !important;
+  }
+
+  .ficha-tabla-print td.etiqueta-print {
+    background-color: #F3F4F6 !important;
+    font-weight: 700 !important;
+    width: 32% !important;
+    color: #374151 !important;
+  }
+
+  .ficha-tabla-print td.valor-print {
+    font-weight: 600 !important;
+    color: #111827 !important;
+  }
+
+  /* Firmas y sellos */
+  .ficha-firmas-print {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 50px !important;
+    padding-top: 20px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .firma-caja {
+    width: 42% !important;
+    text-align: center !important;
+    border-top: 1px solid #4B5563 !important;
+    padding-top: 6px !important;
+    font-size: 9pt !important;
+  }
+
+  .firma-titulo {
+    font-weight: 700 !important;
+    color: #1F2937 !important;
+  }
+
+  .ficha-pie-print {
+    margin-top: 40px !important;
+    border-top: 1px dashed #D1D5DB !important;
+    padding-top: 8px !important;
+    font-size: 7.5pt !important;
+    color: #6B7280 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+}
