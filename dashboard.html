@@ -61,7 +61,7 @@
       </div>
 
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <button type="button" id="btn-exportar-csv" class="btn btn-secundario">
+        <button type="button" id="btn-exportar-datos" class="btn btn-secundario">
           Exportar datos
         </button>
         <a href="/" class="btn btn-primario">
@@ -190,7 +190,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secundario" id="btn-cancelar-exportacion">Cancelar</button>
-        <button type="button" class="btn btn-secundario" data-exportar-formato="csv">Descargar CSV</button>
+        <button type="button" class="btn btn-secundario" data-exportar-formato="xlsx">Descargar XLSX</button>
         <button type="button" class="btn btn-primario" data-exportar-formato="pdf">Imprimir / PDF</button>
       </div>
     </div>
@@ -285,6 +285,7 @@
   </footer>
 
   <script type="module" src="/js/pwa.js"></script>
+  <script src="/node_modules/exceljs/dist/exceljs.min.js"></script>
   <script type="module">
     import { BuscadorNinos } from '/js/buscador.js';
     import { ModuloAdministracion } from '/js/administracion.js';
@@ -306,7 +307,7 @@
       new ModuloAdministracion();
 
       // 3. Enlazar configuración de exportación
-      const btnExportar = document.getElementById('btn-exportar-csv');
+      const btnExportar = document.getElementById('btn-exportar-datos');
       const modalExportacion = document.getElementById('modal-exportacion');
       const cerrarModalExportacion = () => modalExportacion?.classList.remove('abierto');
 

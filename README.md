@@ -29,7 +29,7 @@ onn-registro/
 │   ├── buscador.js              # Buscador inteligente con debounce, filtros y paginación
 │   ├── detalle.js               # Visualización segura, edición en caliente y confirmación de borrado
 │   ├── administracion.js        # Estadísticas reales calculadas en la base de datos
-│   ├── exportacion.js           # Exportación configurable por tabla y columnas a CSV e impresión PDF
+│   ├── exportacion.js           # Exportación configurable por tabla y columnas a XLSX e impresión PDF
 │   └── impresion.js             # Módulo de impresión sincronizada de fichas
 ├── assets/
 │   ├── logo-onn.svg             # Logotipo vectorial oficial ONN
@@ -118,7 +118,7 @@ El sitio incluye un manifiesto PWA y un service worker. Despliegue en un dominio
 1. **Aislamiento Público Ciego**: Un usuario anónimo puede completar el formulario de registro, pero la base de datos tiene **prohibido el comando SELECT** para usuarios sin sesión. Ningún visitante puede consultar la lista de niños registrados, ni verificar nombres ajenos, ni descargar fotos privadas.
 2. **Fotografías con URLs Firmadas**: Las fotografías se guardan en un bucket estrictamente privado (`public = false`). Para visualizarlas en el panel administrativo, el sistema genera URLs firmadas temporales con caducidad (TTL de 1 hora).
 3. **Limpieza Automática de Archivos Huérfanos**: Si por algún error de conexión o duplicidad de documento la base de datos rechaza la inserción, el sistema elimina inmediatamente la imagen recién subida a Storage, impidiendo la acumulación de archivos huérfanos.
-4. **Prevención de Inyección en CSV**: Al exportar los registros a Excel, los valores que comienzan con `=`, `+`, `-` o `@` se sanitizan anteponiendo un apóstrofe para neutralizar la ejecución de macros o fórmulas maliciosas en hojas de cálculo.
+4. **Prevención de fórmulas no deseadas**: Las exportaciones XLSX guardan los datos como texto, preservando identificadores y evitando que valores ingresados por usuarios se ejecuten como fórmulas.
 5. **Normalización y Unicidad de CI**: El CI se almacena como texto en mayúsculas y sin espacios. La base de datos impide a nivel de motor de PostgreSQL que se registre el mismo documento dos veces.
 
 ---
@@ -135,7 +135,7 @@ El sitio incluye un manifiesto PWA y un service worker. Despliegue en un dominio
 - [x] Buscador con debounce por nombre o CI y paginación.
 - [x] Consulta de ficha completa con fotografía segura.
 - [x] Edición y eliminación con confirmación explícita.
-- [x] Exportación configurable por tabla y columnas a CSV compatible con Excel (UTF-8 con BOM) y PDF mediante impresión del navegador.
+- [x] Exportación configurable por tabla y columnas a XLSX, además de descarga XLSX de fichas individuales y PDF mediante impresión del navegador.
 - [x] Ficha individual imprimible y descargable en PDF con `@media print`.
 - [x] Interfaz 100% responsive optimizada para celulares y computadoras.
 # registro_onn_shalom

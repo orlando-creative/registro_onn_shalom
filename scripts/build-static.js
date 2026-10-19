@@ -26,5 +26,11 @@ for (const file of sqlFiles) {
 await cp(path.join(root, 'supabase', 'migrations'), path.join(sqlOutput, 'migrations'), { recursive: true });
 await cp(path.join(root, 'manifest.webmanifest'), path.join(output, 'manifest.webmanifest'));
 await cp(path.join(root, 'sw.js'), path.join(output, 'sw.js'));
+const exceljsOutput = path.join(output, 'node_modules', 'exceljs', 'dist');
+await mkdir(exceljsOutput, { recursive: true });
+await cp(
+  path.join(root, 'node_modules', 'exceljs', 'dist', 'exceljs.min.js'),
+  path.join(exceljsOutput, 'exceljs.min.js'),
+);
 
 console.log(`Static site copied to ${output}`);

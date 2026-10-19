@@ -1,10 +1,11 @@
 /**
  * ONN — Operación Niño de la Navidad
- * Exportación segura de registros a CSV y PDF imprimible
+ * Exportación segura de registros a XLSX y PDF imprimible
  * Archivo: js/exportacion.js
  */
 
 import { getSupabase } from './supabase-client.js';
+import { descargarXlsx } from './archivo-xlsx.js';
 
 const TABLAS = {
   ninos: {
@@ -49,17 +50,6 @@ function mostrarFecha(valor) {
 }
 
 export const ModuloExportacion = {
-  sanitizarCeldaCSV(valor) {
-    if (valor === null || valor === undefined) return '""';
-    let texto = String(valor);
-
-    if (/^[=+\-@\t\r]/.test(texto)) {
-      texto = `'${texto}`;
-    }
-
-    return `"${texto.replace(/"/g, '""')}"`;
-  },
-
   abrirConfiguracion() {
     const modal = document.getElementById('modal-exportacion');
     const selectorTabla = document.getElementById('export-tabla');
@@ -177,8 +167,13 @@ export const ModuloExportacion = {
         dato: registro[campo],
       })));
 
-      if (formato === 'csv') {
-        this.descargarCSV(columnas, filas);
+      if (formato === 'xlsx') {
+        await descargarXlsx(
+          `ONN_${nombreTabla}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+          nombreTabla,
+          columnas.map(({ etiqueta }) => etiqueta),
+          filas.map((fila) => fila.map((celda) => mostrarFecha(celda))),
+        );
       } else if (formato === 'pdf') {
         this.imprimirPDF(ventanaPDF, tabla.etiqueta, columnas, filas);
       } else {
@@ -192,25 +187,6 @@ export const ModuloExportacion = {
     } finally {
       botones.forEach((boton) => { boton.disabled = false; });
     }
-  },
-
-  descargarCSV(columnas, filas) {
-    const lineas = [
-      columnas.map(({ etiqueta }) => this.sanitizarCeldaCSV(etiqueta)).join(','),
-      ...filas.map((fila) => fila
-        .map((celda) => this.sanitizarCeldaCSV(mostrarFecha(celda)))
-        .join(',')),
-    ];
-    const contenidoCSV = '\uFEFF' + lineas.join('\r\n');
-    const blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = `ONN_${document.getElementById('export-tabla').value}_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(enlace);
-    enlace.click();
-    enlace.remove();
-    URL.revokeObjectURL(url);
   },
 
   imprimirPDF(ventana, nombreTabla, columnas, filas) {

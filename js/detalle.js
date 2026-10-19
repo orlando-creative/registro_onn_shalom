@@ -7,6 +7,7 @@
 import { getSupabase } from './supabase-client.js';
 import { GestorStorage } from './storage.js';
 import { Validaciones } from './validaciones.js';
+import { descargarXlsx } from './archivo-xlsx.js';
 
 export class ModuloDetalle {
   constructor(ninoId) {
@@ -153,6 +154,53 @@ export class ModuloDetalle {
     });
     this.asignarTexto('print-fecha', fecha);
     this.asignarTexto('print-folio', this.nino.id.slice(0, 8).toUpperCase());
+  }
+
+  async exportarFichaXlsx() {
+    if (!this.nino) {
+      alert('No hay una ficha disponible para exportar.');
+      return;
+    }
+
+    const boton = document.getElementById('btn-exportar-ficha');
+    if (boton) boton.disabled = true;
+
+    try {
+      const fecha = (valor) => {
+        if (!valor) return '';
+        const date = new Date(valor);
+        return Number.isNaN(date.getTime())
+          ? ''
+          : date.toLocaleString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+      };
+      const nombreArchivo = `ONN_Ficha_${String(this.nino.nombre_completo || 'sin_nombre')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]+/g, '_')
+        .replace(/^_+|_+$/g, '')}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+      await descargarXlsx(nombreArchivo, 'Ficha', ['Campo', 'Valor'], [
+        ['Folio', this.nino.id.slice(0, 8).toUpperCase()],
+        ['Nombre completo', this.nino.nombre_completo],
+        ['CI / Documento', this.nino.ci],
+        ['Edad', `${this.nino.edad} años`],
+        ['Género', this.nino.genero],
+        ['Teléfono del tutor', this.nino.telefono_tutor],
+        ['Fecha de registro', fecha(this.nino.created_at)],
+        ['Última actualización', fecha(this.nino.updated_at)],
+      ]);
+    } catch (err) {
+      console.error('Error al exportar la ficha del niño:', err);
+      alert(`Error al generar la ficha Excel: ${err.message}`);
+    } finally {
+      if (boton) boton.disabled = false;
+    }
   }
 
   asignarTexto(id, texto) {

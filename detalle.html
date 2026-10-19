@@ -82,6 +82,9 @@
           <button type="button" id="btn-imprimir-ficha" class="btn btn-primario" title="Imprimir ficha oficial o guardar en PDF">
             Imprimir Ficha Oficial
           </button>
+          <button type="button" id="btn-exportar-ficha" class="btn btn-secundario" title="Descargar los datos de esta ficha en Excel">
+            Descargar Ficha XLSX
+          </button>
           <button type="button" id="btn-abrir-editar" class="btn btn-secundario" title="Editar información del niño">
             Editar Datos
           </button>
@@ -361,6 +364,7 @@
   </footer>
 
   <script type="module" src="/js/pwa.js"></script>
+  <script src="/node_modules/exceljs/dist/exceljs.min.js"></script>
   <script type="module">
     import { ModuloDetalle } from '/js/detalle.js';
     import { ModuloImpresion } from '/js/impresion.js';
@@ -371,7 +375,7 @@
       const id = params.get('id');
 
       // 2. Cargar detalles inmediatamente sin bloqueo de sesión
-      new ModuloDetalle(id);
+      const moduloDetalle = new ModuloDetalle(id);
 
       // 3. Botón de impresión
       const btnImprimir = document.getElementById('btn-imprimir-ficha');
@@ -380,6 +384,10 @@
           ModuloImpresion.imprimirFichaActual();
         });
       }
+
+      document.getElementById('btn-exportar-ficha')?.addEventListener('click', () => {
+        void moduloDetalle.exportarFichaXlsx();
+      });
     });
   </script>
 </body>
