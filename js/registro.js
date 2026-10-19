@@ -216,6 +216,7 @@ export class ModuloRegistro {
       btnCapturar.disabled = false;
     } catch (error) {
       if (requestId !== this.cameraRequestId) return;
+      console.error('No se pudo iniciar la cámara del dispositivo:', error);
       this.cerrarCamara();
       const mensaje = error?.name === 'NotAllowedError'
         ? 'Permiso de cámara denegado. Habilítelo en el navegador e inténtelo de nuevo.'

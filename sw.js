@@ -1,4 +1,4 @@
-const CACHE_NAME = 'onn-app-v1';
+const CACHE_NAME = 'onn-app-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -51,15 +51,21 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    fetch(event.request).then((response) => {
+      if (response.ok) {
+        const responseCopy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
+      }
+      return response;
+    }).catch(async () => {
+      const cachedResponse = await caches.match(event.request);
       if (cachedResponse) return cachedResponse;
-      return fetch(event.request).then((response) => {
-        if (response.ok) {
-          const responseCopy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
-        }
-        return response;
-      });
+
+      if (/\.(css|js|mjs)$/i.test(requestUrl.pathname)) {
+        throw new Error(`No se pudo cargar el recurso de la aplicación: ${requestUrl.pathname}`);
+      }
+
+      return Response.error();
     })
   );
 });
