@@ -20,6 +20,7 @@ interface RegistroPayload {
   telefono_tutor: string;
   genero: "Masculino" | "Femenino";
   foto_path?: string | null;
+  foto_reverso_path?: string | null;
 }
 
 serve(async (req: Request) => {
@@ -51,6 +52,8 @@ serve(async (req: Request) => {
     const telefono = (body.telefono_tutor || "").trim().replace(/\s+/g, " ");
     const genero = body.genero;
     const fotoPath = body.foto_path || null;
+    const fotoReversoPath = body.foto_reverso_path || null;
+    const fotoPaths = [fotoPath, fotoReversoPath].filter((path): path is string => Boolean(path));
 
     if (!nombre || nombre.length < 2 || nombre.length > 160) {
       return new Response(
@@ -104,8 +107,8 @@ serve(async (req: Request) => {
 
     if (existente) {
       // Si ya existe foto subida, limpiar para evitar archivos huérfanos
-      if (fotoPath) {
-        await supabaseAdmin.storage.from("onn-fotos").remove([fotoPath]);
+      if (fotoPaths.length) {
+        await supabaseAdmin.storage.from("onn-fotos").remove(fotoPaths);
       }
       return new Response(
         JSON.stringify({
@@ -126,6 +129,7 @@ serve(async (req: Request) => {
         telefono_tutor: telefono,
         genero: genero,
         foto_path: fotoPath,
+        foto_reverso_path: fotoReversoPath,
       })
       .select("id, created_at")
       .single();
@@ -133,8 +137,8 @@ serve(async (req: Request) => {
     if (insertError) {
       console.error("Error al insertar registro en PostgreSQL:", insertError);
       // Limpieza de foto si la BD falló
-      if (fotoPath) {
-        await supabaseAdmin.storage.from("onn-fotos").remove([fotoPath]);
+      if (fotoPaths.length) {
+        await supabaseAdmin.storage.from("onn-fotos").remove(fotoPaths);
       }
       return new Response(
         JSON.stringify({ error: "No se pudo completar el registro en el sistema. Intente más tarde." }),

@@ -76,7 +76,7 @@ export class ModuloAdministracion {
       const { count: conFoto } = await client
         .from('ninos')
         .select('*', { count: 'exact', head: true })
-        .not('foto_path', 'is', null);
+        .or('foto_path.not.is.null,foto_reverso_path.not.is.null');
 
       this.asignarNumero('stat-con-foto', conFoto || 0);
 

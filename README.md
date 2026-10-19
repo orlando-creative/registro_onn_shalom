@@ -32,11 +32,17 @@ onn-registro/
 │   ├── exportacion.js           # Exportación configurable por tabla y columnas a CSV e impresión PDF
 │   └── impresion.js             # Módulo de impresión sincronizada de fichas
 ├── assets/
-│   └── logo-onn.svg             # Logotipo vectorial oficial ONN
+│   ├── logo-onn.svg             # Logotipo vectorial oficial ONN
+│   ├── app-icon.svg             # Icono vectorial de la aplicación
+│   ├── app-icon-192.png         # Icono PWA para Android
+│   └── app-icon-512.png         # Icono PWA de alta resolución
+├── manifest.webmanifest         # Configuración de instalación PWA
+├── sw.js                        # Caché de archivos de la aplicación
 ├── supabase/
 │   ├── schema.sql               # Esquema PostgreSQL: tabla 'ninos', restricciones, índices y triggers
 │   ├── policies.sql             # Políticas RLS (acceso anónimo ciego + admin autenticado)
 │   ├── storage.sql              # Configuración de bucket 'onn-fotos' privado y políticas
+│   ├── migrations/              # Cambios SQL para proyectos existentes
 │   └── functions/
 │       └── registrar-nino/      # Supabase Edge Function para registro en servidor
 │           └── index.ts
@@ -80,6 +86,8 @@ onn-registro/
    - Crea el bucket privado `onn-fotos` (con límite de 5 MB y tipos JPG/PNG/WebP).
    - Configura las políticas para permitir subida anónima de carnet y lectura mediante URLs firmadas solo para personal autenticado.
 
+Si el proyecto de Supabase ya estaba creado, ejecute también `supabase/migrations/20261018_add_reverse_document_photo.sql` en SQL Editor. La migración agrega la columna del reverso sin modificar ni eliminar los registros existentes.
+
 ### Paso 3: Configurar la URL y Anon Key Directamente en el Código
 Abre el archivo `js/config.js` y pega directamente tus credenciales de Supabase:
 
@@ -100,6 +108,9 @@ export const SUPABASE_CONFIG = {
 ### Ejecución y despliegue
 El proyecto se despliega como sitio estático y no requiere Vite. Para generar los archivos de publicación, ejecuta `npm install` y `npm run build`; el resultado queda en `dist/`. Vercel está configurado para instalar con npm, ejecutar ese build estático y publicar `dist/`. Si sirves los HTML fuente directamente desde otro hosting estático, el navegador resolverá Supabase mediante `esm.sh`, por lo que necesitará acceso a internet.
 
+### Instalar en un celular
+El sitio incluye un manifiesto PWA y un service worker. Despliegue en un dominio con HTTPS (Vercel ya lo proporciona) y abra la página desde el navegador del teléfono. En Android, pulse **Instalar app** o use el menú del navegador y seleccione **Instalar aplicación**. En iPhone/iPad, abra el sitio en Safari, pulse **Compartir** y luego **Agregar a pantalla de inicio**. La captura nativa se abre desde los botones **Tomar anverso** y **Tomar reverso**; la disponibilidad de cámara depende del navegador y sus permisos. El registro y la sincronización con Supabase requieren conexión a internet.
+
 ---
 
 ## 4. Medidas de Seguridad y Protección de Datos de Menores
@@ -117,7 +128,8 @@ El proyecto se despliega como sitio estático y no requiere Vite. Para generar l
 - [x] Registro público sin necesidad de crear cuenta previa.
 - [x] Datos almacenados en Supabase PostgreSQL.
 - [x] CI único validado en servidor y cliente.
-- [x] Fotografía opcional con opción de captura con cámara en vivo o archivo.
+- [x] Captura opcional del anverso y reverso del documento desde la cámara del teléfono o desde archivos.
+- [x] Aplicación web instalable en celulares (PWA) servida mediante HTTPS.
 - [x] Fotografías almacenadas en Supabase Storage privado.
 - [x] Autenticación de personal mediante Supabase Auth.
 - [x] Buscador con debounce por nombre o CI y paginación.

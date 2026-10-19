@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.ninos (
     telefono_tutor TEXT NOT NULL,
     genero TEXT NOT NULL,
     foto_path TEXT DEFAULT NULL,
+    foto_reverso_path TEXT DEFAULT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
 
@@ -85,3 +86,4 @@ EXECUTE FUNCTION public.actualizar_timestamp_updated_at();
 COMMENT ON TABLE public.ninos IS 'Registro oficial de niños participantes en Operación Niño de la Navidad (ONN)';
 COMMENT ON COLUMN public.ninos.ci IS 'Cédula de Identidad o documento del niño, normalizado y con restricción única';
 COMMENT ON COLUMN public.ninos.foto_path IS 'Ruta relativa de la fotografía dentro del bucket privado onn-fotos en Supabase Storage';
+COMMENT ON COLUMN public.ninos.foto_reverso_path IS 'Ruta relativa de la fotografía del reverso del documento dentro del bucket privado onn-fotos';

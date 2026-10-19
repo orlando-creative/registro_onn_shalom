@@ -23,5 +23,8 @@ await mkdir(sqlOutput, { recursive: true });
 for (const file of sqlFiles) {
   await cp(path.join(root, 'supabase', file), path.join(sqlOutput, file));
 }
+await cp(path.join(root, 'supabase', 'migrations'), path.join(sqlOutput, 'migrations'), { recursive: true });
+await cp(path.join(root, 'manifest.webmanifest'), path.join(output, 'manifest.webmanifest'));
+await cp(path.join(root, 'sw.js'), path.join(output, 'sw.js'));
 
 console.log(`Static site copied to ${output}`);

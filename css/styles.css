@@ -449,6 +449,50 @@ body {
   gap: 0.5rem;
 }
 
+.documento-fotos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 1rem;
+}
+
+.documento-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.documento-foto > strong {
+  color: var(--color-texto-principal);
+  font-size: 0.875rem;
+}
+
+.detalle-foto-placeholder {
+  color: var(--color-texto-apagado);
+  font-size: 0.75rem;
+  padding: 1rem;
+}
+
+.detalle-foto-tarjeta .documento-fotos {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.edit-documento-foto-previa {
+  width: 90px;
+  height: 110px;
+  object-fit: cover;
+  border: 1px solid var(--color-bordes);
+  border-radius: var(--radio-sm);
+}
+
+@media (max-width: 520px) {
+  .documento-fotos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Visor de cámara en vivo */
 .camara-modal {
   display: none;

@@ -83,7 +83,7 @@ export class BuscadorNinos {
     try {
       let query = client
         .from('ninos')
-        .select('id, nombre_completo, ci, edad, telefono_tutor, genero, foto_path, created_at', { count: 'exact' });
+        .select('id, nombre_completo, ci, edad, telefono_tutor, genero, foto_path, foto_reverso_path, created_at', { count: 'exact' });
 
       // Filtro por búsqueda (Nombre o CI)
       if (this.terminoActual) {
@@ -184,7 +184,7 @@ export class BuscadorNinos {
           month: '2-digit',
           year: 'numeric'
         });
-        const tieneFoto = Boolean(nino.foto_path);
+        const tieneFoto = Boolean(nino.foto_path || nino.foto_reverso_path);
 
         return `
           <tr data-id="${nino.id}">
@@ -221,7 +221,7 @@ export class BuscadorNinos {
     // 2. Renderizar lista de tarjetas en móvil
     if (this.contenedorResultados) {
       this.contenedorResultados.innerHTML = lista.map((nino) => {
-        const tieneFoto = Boolean(nino.foto_path);
+        const tieneFoto = Boolean(nino.foto_path || nino.foto_reverso_path);
         return `
           <div class="tarjeta-nino-movil" onclick="window.location.href='/detalle.html?id=${nino.id}'">
             <div style="width: 48px; height: 60px; background: #E8F5E9; border-radius: var(--radio-sm); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #166534; flex-shrink: 0;">

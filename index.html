@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ONN — Operación Niño de la Navidad | Registro</title>
   <meta name="description" content="Sistema oficial de registro y gestión de niños de la Operación Niño de la Navidad (ONN).">
+  <meta name="theme-color" content="#218838">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/app-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/app-icon-192.png">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <script type="importmap">
@@ -168,36 +172,44 @@
             </div>
           </div>
 
-          <!-- 6. Fotografía de Carnet Opcional -->
+          <!-- 6. Fotografías del documento Opcionales -->
           <div class="grupo-formulario">
             <label class="campo-etiqueta">
-              Fotografía de carnet <span style="font-weight: normal; color: var(--color-texto-secundario);">(Opcional)</span>
+              Fotografías del documento <span style="font-weight: normal; color: var(--color-texto-secundario);">(Opcionales)</span>
             </label>
 
-            <div class="seccion-foto">
-              <div class="foto-contenedor-previa" id="contenedor-foto-previa">
-                <img id="img-previa-foto" class="foto-previa-img" alt="Vista previa de carnet" style="display: none;">
-                <div id="foto-placeholder" class="foto-placeholder-icono">
-                  <span>Sin foto</span>
+            <div class="documento-fotos">
+              <div class="documento-foto">
+                <strong>Anverso</strong>
+                <div class="foto-contenedor-previa">
+                  <img id="img-previa-anverso" class="foto-previa-img" alt="Vista previa del anverso" style="display: none;">
+                  <div id="foto-placeholder-anverso" class="foto-placeholder-icono"><span>Sin foto</span></div>
+                </div>
+                <input type="file" id="input-foto-anverso" accept="image/jpeg,image/png,image/webp" hidden>
+                <input type="file" id="input-camara-anverso" accept="image/*" capture="environment" hidden>
+                <div class="foto-acciones">
+                  <button type="button" class="btn btn-sm btn-secundario" data-seleccionar-foto="anverso">Elegir imagen</button>
+                  <button type="button" class="btn btn-sm btn-suave" data-capturar-foto="anverso">Tomar anverso</button>
+                  <button type="button" class="btn btn-sm btn-peligro-suave" data-quitar-foto="anverso" style="display: none;">Quitar</button>
                 </div>
               </div>
 
-              <!-- Input de archivo -->
-              <input type="file" id="input-foto-archivo" accept="image/jpeg,image/png,image/webp" style="display: none;">
-
-              <div class="foto-acciones">
-                <button type="button" class="btn btn-sm btn-secundario" id="btn-seleccionar-foto">
-                  Seleccionar Foto
-                </button>
-                <button type="button" class="btn btn-sm btn-suave" id="btn-abrir-camara">
-                  Tomar con Cámara
-                </button>
-                <button type="button" class="btn btn-sm btn-peligro-suave" id="btn-quitar-foto" style="display: none;">
-                  ✕ Quitar Foto
-                </button>
+              <div class="documento-foto">
+                <strong>Reverso</strong>
+                <div class="foto-contenedor-previa">
+                  <img id="img-previa-reverso" class="foto-previa-img" alt="Vista previa del reverso" style="display: none;">
+                  <div id="foto-placeholder-reverso" class="foto-placeholder-icono"><span>Sin foto</span></div>
+                </div>
+                <input type="file" id="input-foto-reverso" accept="image/jpeg,image/png,image/webp" hidden>
+                <input type="file" id="input-camara-reverso" accept="image/*" capture="environment" hidden>
+                <div class="foto-acciones">
+                  <button type="button" class="btn btn-sm btn-secundario" data-seleccionar-foto="reverso">Elegir imagen</button>
+                  <button type="button" class="btn btn-sm btn-suave" data-capturar-foto="reverso">Tomar reverso</button>
+                  <button type="button" class="btn btn-sm btn-peligro-suave" data-quitar-foto="reverso" style="display: none;">Quitar</button>
+                </div>
               </div>
-              <span class="campo-ayuda" style="margin-top: 0.5rem;">Formatos aceptados: JPG, PNG o WebP. Máximo 5 MB.</span>
             </div>
+            <span class="campo-ayuda" style="margin-top: 0.5rem;">La cámara del teléfono se abrirá a pantalla completa. Formatos JPG, PNG o WebP. Máximo 5 MB por imagen.</span>
           </div>
 
           <!-- Consentimiento -->
@@ -252,27 +264,6 @@
 
   </main>
 
-  <!-- MODAL DE CÁMARA EN VIVO -->
-  <div id="modal-camara" class="camara-modal" role="dialog" aria-modal="true" aria-labelledby="camara-titulo">
-    <div class="camara-dialogo">
-      <div style="padding: 1rem; border-bottom: 1px solid var(--color-bordes); display: flex; justify-content: space-between; align-items: center;">
-        <h3 id="camara-titulo" style="font-size: 1rem; font-weight: 700;">Tomar Fotografía con Cámara</h3>
-        <button type="button" id="btn-cerrar-camara" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--color-texto-secundario);">✕</button>
-      </div>
-
-      <video id="video-camara" class="camara-visor-video" playsinline autoplay muted></video>
-
-      <div class="camara-controles">
-        <button type="button" class="btn btn-sm btn-secundario" id="btn-cambiar-camara">
-          Cambiar Cámara
-        </button>
-        <button type="button" class="btn btn-primario" id="btn-disparar-foto">
-          Capturar Foto
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- MODAL DE CONFIGURACIÓN DE SUPABASE -->
   <div id="modal-config-supabase" class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-caja">
@@ -317,6 +308,7 @@
     </div>
   </footer>
 
+  <script type="module" src="/js/pwa.js"></script>
   <script type="module">
     import { ModuloRegistro } from '/js/registro.js';
     import { getActiveConfig, saveActiveConfig, isConfigured, testConnection } from '/js/supabase-client.js';

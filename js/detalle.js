@@ -12,8 +12,8 @@ export class ModuloDetalle {
   constructor(ninoId) {
     this.ninoId = ninoId;
     this.nino = null;
-    this.nuevaFotoArchivo = null;
-    this.eliminarFotoAlGuardar = false;
+    this.nuevasFotosArchivo = { anverso: null, reverso: null };
+    this.eliminarFotosAlGuardar = { anverso: false, reverso: false };
     this.inicializar();
   }
 
@@ -103,45 +103,42 @@ export class ModuloDetalle {
   }
 
   async cargarFotografia() {
-    const contenedorFoto = document.getElementById('detalle-foto-contenedor');
-    const imgElemento = document.getElementById('detalle-foto-img');
-    const placeholder = document.getElementById('detalle-foto-placeholder');
+    for (const lado of ['anverso', 'reverso']) {
+      const ruta = lado === 'anverso' ? this.nino.foto_path : this.nino.foto_reverso_path;
+      const suffix = lado === 'anverso' ? '' : '-reverso';
+      const imgElemento = document.getElementById(`detalle-foto${suffix}-img`);
+      const placeholder = document.getElementById(`detalle-foto${suffix}-placeholder`);
+      let urlFirmada = null;
 
-    if (this.nino.foto_path) {
-      try {
-        const urlFirmada = await GestorStorage.obtenerUrlFirmada(this.nino.foto_path, 3600);
-        if (urlFirmada && imgElemento) {
-          imgElemento.src = urlFirmada;
-          imgElemento.style.display = 'block';
-          if (placeholder) placeholder.style.display = 'none';
-
-          // Sincronizar también foto en la ficha imprimible
-          const imgPrint = document.getElementById('print-foto-img');
-          const placeholderPrint = document.getElementById('print-foto-placeholder');
-          if (imgPrint) {
-            imgPrint.src = urlFirmada;
-            imgPrint.style.display = 'block';
-          }
-          if (placeholderPrint) placeholderPrint.style.display = 'none';
-          return;
+      if (ruta) {
+        try {
+          urlFirmada = await GestorStorage.obtenerUrlFirmada(ruta, 3600);
+        } catch (err) {
+          console.warn(`Error al obtener URL firmada para ${lado}:`, err);
         }
-      } catch (err) {
-        console.warn('Error al obtener URL firmada:', err);
       }
-    }
 
-    // Si no tiene foto o falló la carga
-    if (imgElemento) {
-      imgElemento.src = '';
-      imgElemento.style.display = 'none';
+      if (urlFirmada && imgElemento) {
+        imgElemento.src = urlFirmada;
+        imgElemento.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+      } else {
+        if (imgElemento) {
+          imgElemento.src = '';
+          imgElemento.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'flex';
+      }
+
+      const printSuffix = lado === 'anverso' ? '' : '-reverso';
+      const imgPrint = document.getElementById(`print-foto${printSuffix}-img`);
+      const placeholderPrint = document.getElementById(`print-foto${printSuffix}-placeholder`);
+      if (imgPrint) {
+        imgPrint.src = urlFirmada || '';
+        imgPrint.style.display = urlFirmada ? 'block' : 'none';
+      }
+      if (placeholderPrint) placeholderPrint.style.display = urlFirmada ? 'none' : 'flex';
     }
-    if (placeholder) {
-      placeholder.style.display = 'flex';
-    }
-    const imgPrint = document.getElementById('print-foto-img');
-    const placeholderPrint = document.getElementById('print-foto-placeholder');
-    if (imgPrint) imgPrint.style.display = 'none';
-    if (placeholderPrint) placeholderPrint.style.display = 'flex';
   }
 
   sincronizarFichaPrint() {
@@ -205,47 +202,47 @@ export class ModuloDetalle {
       formEditar.addEventListener('submit', (e) => this.guardarEdicion(e));
     }
 
-    // Manejo de reemplazo/quitar foto en edición
-    const inputFoto = document.getElementById('edit-foto-input');
-    const btnCambiarFoto = document.getElementById('btn-edit-cambiar-foto');
-    const btnQuitarFoto = document.getElementById('btn-edit-quitar-foto');
+    ['anverso', 'reverso'].forEach((lado) => {
+      const inputFoto = document.getElementById(`edit-foto-${lado}-input`);
+      const btnCambiarFoto = document.querySelector(`[data-edit-cambiar-foto="${lado}"]`);
+      const btnQuitarFoto = document.querySelector(`[data-edit-quitar-foto="${lado}"]`);
 
-    if (btnCambiarFoto && inputFoto) {
-      btnCambiarFoto.addEventListener('click', () => inputFoto.click());
-      inputFoto.addEventListener('change', async (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
+      if (btnCambiarFoto && inputFoto) {
+        btnCambiarFoto.addEventListener('click', () => inputFoto.click());
+        inputFoto.addEventListener('change', async () => {
+          const file = inputFoto.files && inputFoto.files[0];
+          if (!file) return;
 
-        const val = await Validaciones.validarArchivoImagen(file);
-        if (!val.valido) {
-          alert(val.mensaje);
-          inputFoto.value = '';
-          return;
-        }
+          const val = await Validaciones.validarArchivoImagen(file);
+          if (!val.valido) {
+            alert(val.mensaje);
+            inputFoto.value = '';
+            return;
+          }
 
-        this.nuevaFotoArchivo = file;
-        this.eliminarFotoAlGuardar = false;
+          this.nuevasFotosArchivo[lado] = file;
+          this.eliminarFotosAlGuardar[lado] = false;
+          const imgPrevia = document.getElementById(`edit-foto-${lado}-previa`);
+          if (imgPrevia) {
+            imgPrevia.src = URL.createObjectURL(file);
+            imgPrevia.style.display = 'block';
+          }
+        });
+      }
 
-        const imgPrevia = document.getElementById('edit-foto-previa');
-        if (imgPrevia) {
-          imgPrevia.src = URL.createObjectURL(file);
-          imgPrevia.style.display = 'block';
-        }
-      });
-    }
-
-    if (btnQuitarFoto) {
-      btnQuitarFoto.addEventListener('click', () => {
-        this.nuevaFotoArchivo = null;
-        this.eliminarFotoAlGuardar = true;
-        if (inputFoto) inputFoto.value = '';
-        const imgPrevia = document.getElementById('edit-foto-previa');
-        if (imgPrevia) {
-          imgPrevia.src = '';
-          imgPrevia.style.display = 'none';
-        }
-      });
-    }
+      if (btnQuitarFoto) {
+        btnQuitarFoto.addEventListener('click', () => {
+          this.nuevasFotosArchivo[lado] = null;
+          this.eliminarFotosAlGuardar[lado] = true;
+          if (inputFoto) inputFoto.value = '';
+          const imgPrevia = document.getElementById(`edit-foto-${lado}-previa`);
+          if (imgPrevia) {
+            imgPrevia.src = '';
+            imgPrevia.style.display = 'none';
+          }
+        });
+      }
+    });
   }
 
   abrirModalEdicion() {
@@ -258,20 +255,25 @@ export class ModuloDetalle {
     document.getElementById('edit-telefono').value = this.nino.telefono_tutor;
     document.getElementById('edit-genero').value = this.nino.genero;
 
-    this.nuevaFotoArchivo = null;
-    this.eliminarFotoAlGuardar = false;
+    this.nuevasFotosArchivo = { anverso: null, reverso: null };
+    this.eliminarFotosAlGuardar = { anverso: false, reverso: false };
 
-    const imgPrevia = document.getElementById('edit-foto-previa');
-    const imgPrincipal = document.getElementById('detalle-foto-img');
-    if (imgPrevia) {
-      if (imgPrincipal && imgPrincipal.style.display !== 'none' && imgPrincipal.src) {
-        imgPrevia.src = imgPrincipal.src;
-        imgPrevia.style.display = 'block';
-      } else {
-        imgPrevia.src = '';
-        imgPrevia.style.display = 'none';
+    ['anverso', 'reverso'].forEach((lado) => {
+      const suffix = lado === 'anverso' ? '' : '-reverso';
+      const imgPrevia = document.getElementById(`edit-foto-${lado}-previa`);
+      const imgPrincipal = document.getElementById(`detalle-foto${suffix}-img`);
+      const inputFoto = document.getElementById(`edit-foto-${lado}-input`);
+      if (inputFoto) inputFoto.value = '';
+      if (imgPrevia) {
+        if (imgPrincipal && imgPrincipal.style.display !== 'none' && imgPrincipal.src) {
+          imgPrevia.src = imgPrincipal.src;
+          imgPrevia.style.display = 'block';
+        } else {
+          imgPrevia.src = '';
+          imgPrevia.style.display = 'none';
+        }
       }
-    }
+    });
 
     const modal = document.getElementById('modal-editar');
     if (modal) modal.classList.add('abierto');
@@ -306,17 +308,29 @@ export class ModuloDetalle {
       }
 
       const client = getSupabase();
-      let rutaFotoFinal = this.nino.foto_path;
-      let fotoAnteriorParaEliminar = null;
+      const rutasFoto = {
+        anverso: this.nino.foto_path || null,
+        reverso: this.nino.foto_reverso_path || null,
+      };
+      const rutasAnteriores = [];
+      const rutasNuevas = [];
 
-      // 1. Manejo de fotografía si fue modificada
-      if (this.nuevaFotoArchivo) {
-        const resSubida = await GestorStorage.subirFotografia(this.nuevaFotoArchivo);
-        fotoAnteriorParaEliminar = this.nino.foto_path;
-        rutaFotoFinal = resSubida.ruta;
-      } else if (this.eliminarFotoAlGuardar) {
-        fotoAnteriorParaEliminar = this.nino.foto_path;
-        rutaFotoFinal = null;
+      for (const lado of ['anverso', 'reverso']) {
+        const propiedad = lado === 'anverso' ? 'foto_path' : 'foto_reverso_path';
+        if (this.nuevasFotosArchivo[lado]) {
+          rutasAnteriores.push(this.nino[propiedad]);
+          try {
+            const resSubida = await GestorStorage.subirFotografia(this.nuevasFotosArchivo[lado]);
+            rutasNuevas.push(resSubida.ruta);
+            rutasFoto[lado] = resSubida.ruta;
+          } catch (errorSubida) {
+            await Promise.all(rutasNuevas.map((ruta) => GestorStorage.eliminarArchivo(ruta)));
+            throw errorSubida;
+          }
+        } else if (this.eliminarFotosAlGuardar[lado]) {
+          rutasAnteriores.push(this.nino[propiedad]);
+          rutasFoto[lado] = null;
+        }
       }
 
       // 2. Actualizar registro en PostgreSQL
@@ -326,7 +340,8 @@ export class ModuloDetalle {
         edad: valEdad.valor,
         telefono_tutor: valTel.valor,
         genero: valGen.valor,
-        foto_path: rutaFotoFinal,
+        foto_path: rutasFoto.anverso,
+        foto_reverso_path: rutasFoto.reverso,
       };
 
       const { data, error } = await client
@@ -337,10 +352,7 @@ export class ModuloDetalle {
         .single();
 
       if (error) {
-        // Si falló y habíamos subido una nueva foto, limpiar la nueva
-        if (this.nuevaFotoArchivo && rutaFotoFinal) {
-          await GestorStorage.eliminarArchivo(rutaFotoFinal);
-        }
+        await Promise.all(rutasNuevas.map((ruta) => GestorStorage.eliminarArchivo(ruta)));
 
         if (error.code === '23505' || error.message.includes('unique constraint')) {
           throw new Error('Ya existe otro niño registrado con este CI. No se pueden duplicar documentos.');
@@ -349,9 +361,7 @@ export class ModuloDetalle {
       }
 
       // 3. Si la actualización en base de datos fue exitosa, eliminar la foto anterior de Storage
-      if (fotoAnteriorParaEliminar) {
-        await GestorStorage.eliminarArchivo(fotoAnteriorParaEliminar);
-      }
+      await Promise.all(rutasAnteriores.filter(Boolean).map((ruta) => GestorStorage.eliminarArchivo(ruta)));
 
       this.nino = data;
       await this.renderizarDatos();
@@ -414,9 +424,8 @@ export class ModuloDetalle {
       const client = getSupabase();
 
       // 1. Eliminar foto asociada en Storage si existe
-      if (this.nino.foto_path) {
-        await GestorStorage.eliminarArchivo(this.nino.foto_path);
-      }
+      const rutasFotos = [this.nino.foto_path, this.nino.foto_reverso_path].filter(Boolean);
+      await Promise.all(rutasFotos.map((ruta) => GestorStorage.eliminarArchivo(ruta)));
 
       // 2. Eliminar registro en PostgreSQL
       const { error } = await client

@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ficha del Niño — ONN Operación Niño de la Navidad</title>
   <meta name="description" content="Ficha individual y gestión de registro del niño en ONN.">
+  <meta name="theme-color" content="#218838">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/app-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/app-icon-192.png">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/print.css">
@@ -90,17 +94,24 @@
       <!-- Layout en 2 columnas: Foto a la izquierda, Datos a la derecha -->
       <div class="tarjeta detalle-layout">
 
-        <!-- Columna de Fotografía de Carnet -->
+        <!-- Fotografías del documento -->
         <div class="detalle-foto-tarjeta">
-          <div class="detalle-foto-marco" id="detalle-foto-contenedor">
-            <img id="detalle-foto-img" class="detalle-foto-img" alt="Fotografía de carnet del niño" style="display: none;">
-            <div id="detalle-foto-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--color-texto-apagado); padding: 1rem;">
-              <span style="font-size: 0.75rem; font-weight: 500;">Sin fotografía adjunta</span>
+          <div class="documento-fotos">
+            <div class="documento-foto">
+              <strong>Anverso</strong>
+              <div class="detalle-foto-marco">
+                <img id="detalle-foto-img" class="detalle-foto-img" alt="Fotografía del anverso del documento" style="display: none;">
+                <div id="detalle-foto-placeholder" class="detalle-foto-placeholder">Sin fotografía</div>
+              </div>
+            </div>
+            <div class="documento-foto">
+              <strong>Reverso</strong>
+              <div class="detalle-foto-marco">
+                <img id="detalle-foto-reverso-img" class="detalle-foto-img" alt="Fotografía del reverso del documento" style="display: none;">
+                <div id="detalle-foto-reverso-placeholder" class="detalle-foto-placeholder">Sin fotografía</div>
+              </div>
             </div>
           </div>
-          <span style="font-size: 0.75rem; color: var(--color-texto-secundario);">
-            Fotografía de carnet
-          </span>
         </div>
 
         <!-- Columna de Datos de Registro -->
@@ -176,9 +187,17 @@
 
     <div class="ficha-cuerpo-print">
       <div class="ficha-foto-col">
-        <img id="print-foto-img" class="ficha-foto-print" alt="Foto de carnet" style="display: none;">
-        <div id="print-foto-placeholder" class="ficha-foto-placeholder-print">
-          Espacio para Fotografía de Carnet
+        <div class="ficha-foto-grid">
+          <div class="ficha-foto-item">
+            <strong>Anverso</strong>
+            <img id="print-foto-img" class="ficha-foto-print" alt="Foto del anverso" style="display: none;">
+            <div id="print-foto-placeholder" class="ficha-foto-placeholder-print">Sin fotografía</div>
+          </div>
+          <div class="ficha-foto-item">
+            <strong>Reverso</strong>
+            <img id="print-foto-reverso-img" class="ficha-foto-print" alt="Foto del reverso" style="display: none;">
+            <div id="print-foto-reverso-placeholder" class="ficha-foto-placeholder-print">Sin fotografía</div>
+          </div>
         </div>
       </div>
 
@@ -275,19 +294,24 @@
             </div>
           </div>
 
-          <!-- Modificación de Foto de Carnet -->
+          <!-- Modificación de fotos del documento -->
           <div class="grupo-formulario" style="border-top: 1px solid var(--color-bordes); padding-top: 1rem; margin-top: 1rem;">
-            <label class="campo-etiqueta">Fotografía de carnet</label>
-            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-              <img id="edit-foto-previa" style="width: 60px; height: 75px; object-fit: cover; border-radius: var(--radio-sm); border: 1px solid var(--color-bordes); display: none;" alt="Foto">
-              
-              <input type="file" id="edit-foto-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
-              <button type="button" class="btn btn-sm btn-secundario" id="btn-edit-cambiar-foto">
-                Reemplazar Foto
-              </button>
-              <button type="button" class="btn btn-sm btn-peligro-suave" id="btn-edit-quitar-foto">
-                Quitar Foto
-              </button>
+            <label class="campo-etiqueta">Fotos del documento</label>
+            <div class="documento-fotos">
+              <div class="documento-foto">
+                <strong>Anverso</strong>
+                <img id="edit-foto-anverso-previa" class="edit-documento-foto-previa" alt="Vista previa del anverso" style="display: none;">
+                <input type="file" id="edit-foto-anverso-input" accept="image/jpeg,image/png,image/webp" hidden>
+                <button type="button" class="btn btn-sm btn-secundario" data-edit-cambiar-foto="anverso">Reemplazar</button>
+                <button type="button" class="btn btn-sm btn-peligro-suave" data-edit-quitar-foto="anverso">Quitar</button>
+              </div>
+              <div class="documento-foto">
+                <strong>Reverso</strong>
+                <img id="edit-foto-reverso-previa" class="edit-documento-foto-previa" alt="Vista previa del reverso" style="display: none;">
+                <input type="file" id="edit-foto-reverso-input" accept="image/jpeg,image/png,image/webp" hidden>
+                <button type="button" class="btn btn-sm btn-secundario" data-edit-cambiar-foto="reverso">Reemplazar</button>
+                <button type="button" class="btn btn-sm btn-peligro-suave" data-edit-quitar-foto="reverso">Quitar</button>
+              </div>
             </div>
           </div>
 
@@ -336,6 +360,7 @@
     </div>
   </footer>
 
+  <script type="module" src="/js/pwa.js"></script>
   <script type="module">
     import { ModuloDetalle } from '/js/detalle.js';
     import { ModuloImpresion } from '/js/impresion.js';

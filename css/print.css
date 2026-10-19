@@ -83,13 +83,26 @@
 
   /* Fotografía de carnet */
   .ficha-foto-col {
-    width: 140px !important;
+    width: 200px !important;
     flex-shrink: 0 !important;
   }
 
+  .ficha-foto-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .ficha-foto-item > strong {
+    display: block !important;
+    font-size: 8pt !important;
+    margin-bottom: 4px !important;
+    text-align: center !important;
+  }
+
   .ficha-foto-print {
-    width: 135px !important;
-    height: 175px !important;
+    width: 95px !important;
+    height: 123px !important;
     border: 1px solid #9CA3AF !important;
     object-fit: cover !important;
     display: block !important;
@@ -97,8 +110,8 @@
   }
 
   .ficha-foto-placeholder-print {
-    width: 135px !important;
-    height: 175px !important;
+    width: 95px !important;
+    height: 123px !important;
     border: 1px dashed #9CA3AF !important;
     display: flex !important;
     align-items: center !important;
