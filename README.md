@@ -27,6 +27,7 @@ onn-registro/
 │   ├── storage.js               # Subida a bucket privado, URLs firmadas y limpieza de huérfanos
 │   ├── registro.js              # Controlador del formulario de registro y cámara web/móvil
 │   ├── buscador.js              # Buscador inteligente con debounce, filtros y paginación
+│   ├── asistencia.js            # Registro de asistencia y fecha en las cuatro clases
 │   ├── detalle.js               # Visualización segura, edición en caliente y confirmación de borrado
 │   ├── administracion.js        # Estadísticas reales calculadas en la base de datos
 │   ├── exportacion.js           # Exportación configurable por tabla y columnas a XLSX e impresión PDF
@@ -39,7 +40,7 @@ onn-registro/
 ├── manifest.webmanifest         # Configuración de instalación PWA
 ├── sw.js                        # Caché de archivos de la aplicación
 ├── supabase/
-│   ├── schema.sql               # Esquema PostgreSQL: tabla 'ninos', restricciones, índices y triggers
+│   ├── schema.sql               # Esquema PostgreSQL: niños, asistencia, restricciones, índices y triggers
 │   ├── policies.sql             # Políticas RLS (acceso anónimo ciego + admin autenticado)
 │   ├── storage.sql              # Configuración de bucket 'onn-fotos' privado y políticas
 │   ├── migrations/              # Cambios SQL para proyectos existentes
@@ -87,6 +88,7 @@ onn-registro/
    - Configura las políticas para permitir subida anónima de carnet y lectura mediante URLs firmadas solo para personal autenticado.
 
 Si el proyecto de Supabase ya estaba creado, ejecute también `supabase/migrations/20261018_add_reverse_document_photo.sql` en SQL Editor. La migración agrega la columna del reverso sin modificar ni eliminar los registros existentes.
+Para habilitar el registro de asistencia en un proyecto existente, ejecute también `supabase/migrations/20261019_add_class_attendance.sql`. La tabla guarda la asistencia (vino/no vino) y la fecha para cada niño en cada una de las cuatro clases.
 
 ### Paso 3: Configurar la URL y Anon Key Directamente en el Código
 Abre el archivo `js/config.js` y pega directamente tus credenciales de Supabase:

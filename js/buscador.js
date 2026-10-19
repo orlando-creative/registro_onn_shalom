@@ -109,6 +109,7 @@ export class BuscadorNinos {
         throw error;
       }
 
+      await this.cargarAsistencias(data || []);
       this.totalRegistros = count || 0;
       this.renderizarResultados(data || []);
       this.renderizarPaginacion();
@@ -124,10 +125,75 @@ export class BuscadorNinos {
     }
   }
 
+  async cargarAsistencias(ninos) {
+    this.asistenciaPorNino = new Map();
+    this.errorAsistencia = null;
+    if (!ninos.length) {
+      const aviso = document.getElementById('estado-asistencia-directorio');
+      if (aviso) aviso.hidden = true;
+      return;
+    }
+
+    const client = getSupabase();
+    try {
+      const { data, error } = await client
+        .from('asistencias')
+        .select('nino_id, clase, asistio, fecha')
+        .in('nino_id', ninos.map(({ id }) => id))
+        .order('clase');
+      if (error) throw error;
+
+      data?.forEach((registro) => {
+        if (!this.asistenciaPorNino.has(registro.nino_id)) {
+          this.asistenciaPorNino.set(registro.nino_id, new Map());
+        }
+        this.asistenciaPorNino.get(registro.nino_id).set(registro.clase, registro);
+      });
+    } catch (error) {
+      console.error('Error al consultar asistencia del directorio:', error);
+      this.errorAsistencia = error.message;
+    }
+
+    const aviso = document.getElementById('estado-asistencia-directorio');
+    if (aviso) {
+      aviso.textContent = this.errorAsistencia
+        ? 'No se pudo cargar la asistencia. Verifica que la migración de asistencia esté aplicada en Supabase.'
+        : '';
+      aviso.hidden = !this.errorAsistencia;
+    }
+  }
+
+  renderizarAsistencia(ninoId) {
+    const asistencias = this.asistenciaPorNino?.get(ninoId);
+    const iconos = [1, 2, 3, 4].map((clase) => {
+      const registro = asistencias?.get(clase);
+      const estado = this.errorAsistencia
+        ? 'error'
+        : registro ? (registro.asistio ? 'presente' : 'ausente') : 'pendiente';
+      const simbolo = {
+        presente: '✓',
+        ausente: '×',
+        pendiente: '—',
+        error: '!',
+      }[estado];
+      const detalle = this.errorAsistencia
+        ? 'No se pudo consultar'
+        : registro
+          ? `${registro.asistio ? 'Vino' : 'No vino'} · ${registro.fecha}`
+          : 'Sin registrar';
+
+      return `<span class="asistencia-indicador asistencia-${estado}" title="Clase ${clase}: ${detalle}" aria-label="Clase ${clase}: ${detalle}">
+        <small>${clase}</small><strong>${simbolo}</strong>
+      </span>`;
+    }).join('');
+
+    return `<div class="asistencia-indicadores" aria-label="Asistencia a las cuatro clases">${iconos}</div>`;
+  }
+
   renderizarCargando() {
     const placeholderHTML = `
       <tr>
-        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--color-texto-secundario);">
+        <td colspan="9" style="text-align: center; padding: 2rem; color: var(--color-texto-secundario);">
           <span class="spinner" style="border-color: rgba(33, 136, 56, 0.2); border-top-color: #218838; width: 1.5rem; height: 1.5rem; margin-right: 0.5rem; vertical-align: middle;"></span>
           Consultando registros...
         </td>
@@ -149,7 +215,7 @@ export class BuscadorNinos {
     const color = tipo === 'error' ? 'var(--color-rojo)' : 'var(--color-texto-secundario)';
     const html = `
       <tr>
-        <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; color: ${color};">
+        <td colspan="9" style="text-align: center; padding: 2.5rem 1rem; color: ${color};">
           <p style="font-weight: 500;">${mensaje}</p>
         </td>
       </tr>
@@ -188,7 +254,7 @@ export class BuscadorNinos {
 
         return `
           <tr data-id="${nino.id}">
-            <td style="width: 50px; text-align: center;">
+            <td style="text-align: center;">
               ${tieneFoto 
                 ? '<span title="Tiene foto de carnet" style="color: var(--color-verde-oscuro);">Con foto</span>' 
                 : '<span title="Sin foto" style="color: var(--color-texto-apagado);">Sin foto</span>'
@@ -208,6 +274,7 @@ export class BuscadorNinos {
             </td>
             <td>${this.escaparHTML(nino.genero)}</td>
             <td class="tabular-nums" style="color: var(--color-texto-secundario); font-size: 0.8125rem;">${fecha}</td>
+            <td>${this.renderizarAsistencia(nino.id)}</td>
             <td style="text-align: right; white-space: nowrap;">
               <a href="/detalle.html?id=${nino.id}" class="btn btn-sm btn-secundario" title="Ver ficha y detalles">
                 Ver Ficha
@@ -238,6 +305,10 @@ export class BuscadorNinos {
               </div>
               <div style="margin-top: 0.25rem; font-size: 0.8125rem; color: var(--color-verde-oscuro);">
                 Tutor: <span class="ci-mono">${this.escaparHTML(nino.telefono_tutor)}</span>
+              </div>
+              <div class="asistencia-movil">
+                <span class="asistencia-movil-etiqueta">Clases</span>
+                ${this.renderizarAsistencia(nino.id)}
               </div>
             </div>
             <span style="color: var(--color-texto-apagado); font-size: 1.25rem;">›</span>

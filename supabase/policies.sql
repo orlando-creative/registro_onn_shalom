@@ -24,3 +24,15 @@ FOR ALL
 TO anon, authenticated
 USING (true)
 WITH CHECK (true);
+
+ALTER TABLE public.asistencias ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Acceso total ONN asistencias anon y authenticated" ON public.asistencias;
+CREATE POLICY "Acceso total ONN asistencias anon y authenticated"
+ON public.asistencias
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.asistencias TO anon, authenticated;

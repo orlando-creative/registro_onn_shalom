@@ -297,6 +297,38 @@
 
   .tabla-contenedor-escritorio {
     display: block;
+    overflow-x: hidden;
+  }
+
+  .tabla-contenedor-escritorio .tabla-onn {
+    table-layout: fixed;
+    font-size: 0.75rem;
+  }
+
+  .tabla-contenedor-escritorio .tabla-onn th,
+  .tabla-contenedor-escritorio .tabla-onn td {
+    padding: 0.5rem 0.35rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(1) { width: 7%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(2) { width: 17%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(3) { width: 10%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(4) { width: 6%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(5) { width: 12%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(6) { width: 8%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(7) { width: 11%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(8) { width: 17%; }
+  .tabla-contenedor-escritorio .tabla-onn th:nth-child(9) { width: 12%; }
+
+  .tabla-contenedor-escritorio .asistencia-indicador {
+    width: 1.35rem;
+    height: 1.6rem;
+  }
+
+  .tabla-contenedor-escritorio .asistencia-indicadores {
+    gap: 0.15rem;
   }
 }
 
@@ -373,6 +405,15 @@
 
   .tarjeta {
     padding: 1rem;
+  }
+
+  .asistencia-controles {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .asistencia-nino-estado {
+    font-size: 0.75rem;
   }
 
   .tarjeta-header {

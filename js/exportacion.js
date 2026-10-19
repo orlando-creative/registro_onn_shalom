@@ -21,9 +21,17 @@ const TABLAS = {
       { campo: 'foto_reverso_path', etiqueta: 'Ruta de foto (reverso)' },
       { campo: 'created_at', etiqueta: 'Fecha de registro', seleccionada: true },
       { campo: 'updated_at', etiqueta: 'Última actualización' },
+      ...[1, 2, 3, 4].flatMap((clase) => [
+        { campo: `asistencia_clase_${clase}`, etiqueta: `Clase ${clase} - Asistencia`, seleccionada: true },
+        { campo: `fecha_clase_${clase}`, etiqueta: `Clase ${clase} - Fecha`, seleccionada: true },
+      ]),
     ],
   },
 };
+
+function esColumnaAsistencia(campo) {
+  return /^(asistencia_clase|fecha_clase)_[1-4]$/.test(campo);
+}
 
 function escaparHTML(valor) {
   return String(valor ?? '').replace(/[&<>"']/g, (caracter) => ({
@@ -36,7 +44,9 @@ function escaparHTML(valor) {
 }
 
 function mostrarFecha(valor) {
-  if (!valor || !['created_at', 'updated_at'].includes(valor.campo)) return valor?.dato ?? '';
+  if (!valor || !(['created_at', 'updated_at'].includes(valor.campo) || /^fecha_clase_[1-4]$/.test(valor.campo))) {
+    return valor?.dato ?? '';
+  }
   const fecha = new Date(valor.dato);
   return Number.isNaN(fecha.getTime())
     ? valor.dato
@@ -44,8 +54,9 @@ function mostrarFecha(valor) {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
+      ...(valor.campo === 'created_at' || valor.campo === 'updated_at'
+        ? { hour: '2-digit', minute: '2-digit' }
+        : { timeZone: 'UTC' }),
     });
 }
 
@@ -128,7 +139,11 @@ export const ModuloExportacion = {
     botones.forEach((boton) => { boton.disabled = true; });
 
     try {
-      const campos = columnas.map(({ campo }) => campo).join(',');
+      const columnasAsistencia = columnas.filter(({ campo }) => esColumnaAsistencia(campo));
+      const camposNino = columnas
+        .map(({ campo }) => campo)
+        .filter((campo) => !esColumnaAsistencia(campo));
+      const campos = Array.from(new Set(['id', 'created_at', ...camposNino])).join(',');
       const registros = [];
       let desde = 0;
       const lote = 1000;
@@ -156,16 +171,58 @@ export const ModuloExportacion = {
         if (data.length < lote) break;
       }
 
+      const asistenciasPorNino = new Map();
+      if (columnasAsistencia.length && registros.length) {
+        const ids = registros.map(({ id }) => id);
+        const clasesSeleccionadas = Array.from(new Set(columnasAsistencia.map(({ campo }) =>
+          Number(campo.match(/[1-4]$/)[0]))));
+        for (let inicio = 0; inicio < ids.length; inicio += 500) {
+          let desdeAsistencia = 0;
+          while (true) {
+            const { data, error } = await client
+              .from('asistencias')
+              .select('nino_id, clase, asistio, fecha')
+              .in('nino_id', ids.slice(inicio, inicio + 500))
+              .in('clase', clasesSeleccionadas)
+              .order('nino_id')
+              .order('clase')
+              .range(desdeAsistencia, desdeAsistencia + 999);
+            if (error) throw error;
+            if (!data?.length) break;
+            data.forEach((asistencia) => {
+              if (!asistenciasPorNino.has(asistencia.nino_id)) {
+                asistenciasPorNino.set(asistencia.nino_id, new Map());
+              }
+              asistenciasPorNino.get(asistencia.nino_id).set(asistencia.clase, asistencia);
+            });
+            desdeAsistencia += data.length;
+            if (data.length < 1000) break;
+          }
+        }
+      }
+
       if (registros.length === 0) {
         ventanaPDF?.close();
         alert('No hay registros disponibles para exportar con los criterios seleccionados.');
         return;
       }
 
-      const filas = registros.map((registro) => columnas.map(({ campo }) => ({
-        campo,
-        dato: registro[campo],
-      })));
+      const filas = registros.map((registro) => {
+        const asistenciaNino = asistenciasPorNino.get(registro.id);
+        return columnas.map(({ campo }) => {
+          const coincidencia = campo.match(/^(asistencia_clase|fecha_clase)_([1-4])$/);
+          if (coincidencia) {
+            const asistencia = asistenciaNino?.get(Number(coincidencia[2]));
+            return {
+              campo,
+              dato: coincidencia[1] === 'fecha_clase'
+                ? asistencia?.fecha || ''
+                : asistencia ? (asistencia.asistio ? 'Vino' : 'No vino') : 'Sin registrar',
+            };
+          }
+          return { campo, dato: registro[campo] };
+        });
+      });
 
       if (formato === 'xlsx') {
         await descargarXlsx(

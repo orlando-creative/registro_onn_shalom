@@ -64,6 +64,9 @@
         <button type="button" id="btn-exportar-datos" class="btn btn-secundario">
           Exportar datos
         </button>
+        <button type="button" id="btn-tomar-asistencia" class="btn btn-secundario">
+          Tomar asistencia
+        </button>
         <a href="/" class="btn btn-primario">
           + Registrar Nuevo Niño
         </a>
@@ -126,18 +129,26 @@
         </select>
       </div>
 
+      <p id="estado-asistencia-directorio" class="asistencia-aviso campo-ayuda" role="status" hidden></p>
+      <p class="asistencia-leyenda" aria-label="Leyenda de asistencia">
+        <span class="asistencia-presente">✓ Vino</span>
+        <span class="asistencia-ausente">× No vino</span>
+        <span class="asistencia-pendiente">— Sin registrar</span>
+      </p>
+
       <!-- Tabla para Computadoras -->
       <div class="tabla-contenedor tabla-contenedor-escritorio">
         <table class="tabla-onn">
           <thead>
             <tr>
-              <th style="width: 50px; text-align: center;">Foto</th>
+              <th style="text-align: center;">Foto</th>
               <th>Nombre Completo</th>
               <th>CI / Documento</th>
               <th>Edad</th>
               <th>Teléfono Tutor</th>
               <th>Género</th>
               <th>Fecha Registro</th>
+              <th>Asistencia (4 clases)</th>
               <th style="text-align: right;">Ficha</th>
             </tr>
           </thead>
@@ -193,6 +204,48 @@
         <button type="button" class="btn btn-secundario" data-exportar-formato="xlsx">Descargar XLSX</button>
         <button type="button" class="btn btn-primario" data-exportar-formato="pdf">Imprimir / PDF</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ASISTENCIA -->
+  <div id="modal-asistencia" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="asistencia-titulo">
+    <div class="modal-caja modal-caja-asistencia">
+      <div class="modal-header">
+        <h3 id="asistencia-titulo" class="modal-titulo">Tomar asistencia</h3>
+        <button type="button" class="modal-cerrar-btn" id="btn-cerrar-asistencia" aria-label="Cerrar">×</button>
+      </div>
+      <form id="form-asistencia">
+        <div class="modal-cuerpo">
+          <div class="asistencia-controles">
+            <div class="grupo-formulario">
+              <label for="asistencia-clase" class="campo-etiqueta">Clase</label>
+              <select id="asistencia-clase" class="select-control">
+                <option value="1">Clase 1</option>
+                <option value="2">Clase 2</option>
+                <option value="3">Clase 3</option>
+                <option value="4">Clase 4</option>
+              </select>
+            </div>
+            <div class="grupo-formulario">
+              <label for="asistencia-fecha" class="campo-etiqueta">Fecha</label>
+              <input id="asistencia-fecha" class="input-control" type="date" required>
+            </div>
+          </div>
+          <p id="asistencia-estado" class="campo-ayuda" aria-live="polite">Cargando niños y asistencia...</p>
+          <div class="asistencia-lista-cabecera">
+            <strong>Niños registrados</strong>
+            <div>
+              <button type="button" class="btn btn-sm btn-suave" id="btn-asistencia-todos">Marcar todos</button>
+              <button type="button" class="btn btn-sm btn-secundario" id="btn-asistencia-ninguno">Marcar ninguno</button>
+            </div>
+          </div>
+          <div id="asistencia-lista" class="asistencia-lista"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-asistencia">Cancelar</button>
+          <button type="submit" class="btn btn-primario" id="btn-guardar-asistencia" disabled>Guardar asistencia</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -290,6 +343,7 @@
     import { BuscadorNinos } from '/js/buscador.js';
     import { ModuloAdministracion } from '/js/administracion.js';
     import { ModuloExportacion } from '/js/exportacion.js';
+    import { ModuloAsistencia } from '/js/asistencia.js';
 
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Inicializar buscador inteligente directo sin barrera de login
@@ -305,6 +359,7 @@
 
       // 2. Inicializar módulo de administración y estadísticas
       new ModuloAdministracion();
+      ModuloAsistencia.inicializar();
 
       // 3. Enlazar configuración de exportación
       const btnExportar = document.getElementById('btn-exportar-datos');

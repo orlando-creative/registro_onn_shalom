@@ -38,6 +38,18 @@ CREATE INDEX IF NOT EXISTS idx_ninos_ci ON public.ninos (ci);
 CREATE INDEX IF NOT EXISTS idx_ninos_created_at ON public.ninos (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ninos_genero ON public.ninos (genero);
 
+-- 4. ASISTENCIA A LAS CUATRO CLASES
+CREATE TABLE IF NOT EXISTS public.asistencias (
+    nino_id UUID NOT NULL REFERENCES public.ninos(id) ON DELETE CASCADE,
+    clase SMALLINT NOT NULL CHECK (clase BETWEEN 1 AND 4),
+    fecha DATE NOT NULL,
+    asistio BOOLEAN NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    PRIMARY KEY (nino_id, clase)
+);
+
+CREATE INDEX IF NOT EXISTS idx_asistencias_clase ON public.asistencias (clase);
+
 -- 4. FUNCIÓN Y TRIGGER PARA NORMALIZAR CAMPOS ANTES DE INSERTAR O ACTUALIZAR
 CREATE OR REPLACE FUNCTION public.normalizar_datos_nino()
 RETURNS TRIGGER AS $$
