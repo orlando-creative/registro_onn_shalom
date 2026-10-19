@@ -12,6 +12,11 @@ export class ModuloRegistro {
   constructor(formularioId) {
     this.form = document.getElementById(formularioId);
     this.archivosFotoSeleccionados = { anverso: null, reverso: null };
+    this.urlsPrevia = { anverso: null, reverso: null };
+    this.cameraStream = null;
+    this.cameraSide = null;
+    this.cameraRequestId = 0;
+    this.cameraReturnFocus = null;
     this.inicializar();
   }
 
@@ -79,40 +84,55 @@ export class ModuloRegistro {
   enlazarEventosFoto() {
     ['anverso', 'reverso'].forEach((lado) => {
       const inputArchivo = document.getElementById(`input-foto-${lado}`);
-      const inputCamara = document.getElementById(`input-camara-${lado}`);
       const btnSeleccionar = document.querySelector(`[data-seleccionar-foto="${lado}"]`);
       const btnCapturar = document.querySelector(`[data-capturar-foto="${lado}"]`);
       const btnQuitar = document.querySelector(`[data-quitar-foto="${lado}"]`);
 
       if (btnSeleccionar && inputArchivo) btnSeleccionar.addEventListener('click', () => inputArchivo.click());
-      if (btnCapturar && inputCamara) btnCapturar.addEventListener('click', () => inputCamara.click());
+      if (btnCapturar) btnCapturar.addEventListener('click', () => this.abrirCamara(lado));
 
-      [inputArchivo, inputCamara].forEach((input) => {
-        if (!input) return;
-        input.addEventListener('change', async () => {
-          const file = input.files && input.files[0];
+      if (inputArchivo) {
+        inputArchivo.addEventListener('change', async () => {
+          const file = inputArchivo.files && inputArchivo.files[0];
           if (!file) return;
 
           const val = await Validaciones.validarArchivoImagen(file);
           if (!val.valido) {
             alert(val.mensaje);
-            input.value = '';
+            inputArchivo.value = '';
             return;
           }
 
           this.archivosFotoSeleccionados[lado] = file;
           this.mostrarPreviaFoto(lado, file);
         });
-      });
+      }
 
       if (btnQuitar) {
         btnQuitar.addEventListener('click', () => {
           this.archivosFotoSeleccionados[lado] = null;
           if (inputArchivo) inputArchivo.value = '';
-          if (inputCamara) inputCamara.value = '';
           this.restablecerPreviaFoto(lado);
         });
       }
+    });
+
+    const modal = document.getElementById('modal-camara');
+    const video = document.getElementById('camara-video');
+    const btnCerrar = document.getElementById('btn-cerrar-camara');
+    const btnCancelar = document.getElementById('btn-cancelar-camara');
+    const btnCapturar = document.getElementById('btn-tomar-foto');
+
+    if (btnCerrar) btnCerrar.addEventListener('click', () => this.cerrarCamara());
+    if (btnCancelar) btnCancelar.addEventListener('click', () => this.cerrarCamara());
+    if (btnCapturar) btnCapturar.addEventListener('click', () => this.capturarFoto());
+    if (modal) {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) this.cerrarCamara();
+      });
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal?.classList.contains('abierto')) this.cerrarCamara();
     });
   }
 
@@ -122,7 +142,9 @@ export class ModuloRegistro {
     const btnQuitar = document.querySelector(`[data-quitar-foto="${lado}"]`);
 
     if (imgPrevia && placeholder) {
-      imgPrevia.src = URL.createObjectURL(fileOrBlob);
+      if (this.urlsPrevia[lado]) URL.revokeObjectURL(this.urlsPrevia[lado]);
+      this.urlsPrevia[lado] = URL.createObjectURL(fileOrBlob);
+      imgPrevia.src = this.urlsPrevia[lado];
       imgPrevia.style.display = 'block';
       placeholder.style.display = 'none';
       if (btnQuitar) btnQuitar.style.display = 'inline-flex';
@@ -135,11 +157,145 @@ export class ModuloRegistro {
     const btnQuitar = document.querySelector(`[data-quitar-foto="${lado}"]`);
 
     if (imgPrevia && placeholder) {
+      if (this.urlsPrevia[lado]) URL.revokeObjectURL(this.urlsPrevia[lado]);
+      this.urlsPrevia[lado] = null;
       imgPrevia.src = '';
       imgPrevia.style.display = 'none';
       placeholder.style.display = 'flex';
       if (btnQuitar) btnQuitar.style.display = 'none';
     }
+  }
+
+  async abrirCamara(lado) {
+    const modal = document.getElementById('modal-camara');
+    const video = document.getElementById('camara-video');
+    const titulo = document.getElementById('camara-titulo');
+    const estado = document.getElementById('camara-estado');
+    const btnCapturar = document.getElementById('btn-tomar-foto');
+    if (!modal || !video || !estado || !btnCapturar) return;
+
+    this.cerrarCamara(false);
+    const requestId = ++this.cameraRequestId;
+    this.cameraSide = lado;
+    this.cameraReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    titulo.textContent = `Tomar fotografía del ${lado}`;
+    estado.textContent = 'Iniciando cámara...';
+    btnCapturar.disabled = true;
+    modal.classList.add('abierto');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('camara-activa');
+    document.getElementById('btn-cerrar-camara')?.focus();
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      estado.textContent = 'Este navegador no permite usar la cámara aquí. Verifique que el sitio esté abierto con HTTPS o elija una imagen guardada.';
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280, max: 1280 },
+          height: { ideal: 720, max: 720 },
+          frameRate: { ideal: 24, max: 30 }
+        }
+      });
+
+      if (requestId !== this.cameraRequestId) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      this.cameraStream = stream;
+      video.srcObject = stream;
+      await video.play();
+      if (requestId !== this.cameraRequestId) return;
+
+      estado.textContent = 'Acomode el documento dentro del encuadre y capture la foto.';
+      btnCapturar.disabled = false;
+    } catch (error) {
+      if (requestId !== this.cameraRequestId) return;
+      this.cerrarCamara();
+      const mensaje = error?.name === 'NotAllowedError'
+        ? 'Permiso de cámara denegado. Habilítelo en el navegador e inténtelo de nuevo.'
+        : `No se pudo iniciar la cámara. Compruebe los permisos y que otra aplicación no la esté usando. ${error?.message || ''}`.trim();
+      this.mostrarAlertaGlobal(mensaje, 'error');
+    }
+  }
+
+  async capturarFoto() {
+    const video = document.getElementById('camara-video');
+    const estado = document.getElementById('camara-estado');
+    const btnCapturar = document.getElementById('btn-tomar-foto');
+    if (!video || !estado || !btnCapturar || !this.cameraSide) return;
+
+    const requestId = this.cameraRequestId;
+    const anchoOriginal = video.videoWidth;
+    const altoOriginal = video.videoHeight;
+    if (!anchoOriginal || !altoOriginal) {
+      estado.textContent = 'La cámara todavía se está preparando. Espere un momento e inténtelo otra vez.';
+      return;
+    }
+
+    btnCapturar.disabled = true;
+    estado.textContent = 'Procesando fotografía...';
+    const escala = Math.min(1, 1600 / Math.max(anchoOriginal, altoOriginal));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(anchoOriginal * escala);
+    canvas.height = Math.round(altoOriginal * escala);
+
+    try {
+      const contexto = canvas.getContext('2d');
+      if (!contexto) throw new Error('No se pudo preparar la imagen en este dispositivo.');
+      contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+      if (requestId !== this.cameraRequestId) return;
+      if (!blob) throw new Error('No se pudo generar la fotografía. Inténtelo de nuevo.');
+
+      const lado = this.cameraSide;
+      const archivo = new File([blob], `onn-${lado}-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const validacion = await Validaciones.validarArchivoImagen(archivo);
+      if (requestId !== this.cameraRequestId) return;
+      if (!validacion.valido) throw new Error(validacion.mensaje);
+
+      this.archivosFotoSeleccionados[lado] = archivo;
+      this.mostrarPreviaFoto(lado, archivo);
+      this.cerrarCamara();
+    } catch (error) {
+      estado.textContent = error.message || 'No se pudo procesar la fotografía.';
+      btnCapturar.disabled = false;
+    } finally {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+
+  cerrarCamara(restaurarFoco = true) {
+    this.cameraRequestId += 1;
+    if (this.cameraStream) {
+      this.cameraStream.getTracks().forEach((track) => track.stop());
+      this.cameraStream = null;
+    }
+
+    const modal = document.getElementById('modal-camara');
+    const video = document.getElementById('camara-video');
+    const btnCapturar = document.getElementById('btn-tomar-foto');
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+    if (btnCapturar) btnCapturar.disabled = true;
+    if (modal) {
+      modal.classList.remove('abierto');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('camara-activa');
+    this.cameraSide = null;
+
+    const focusTarget = this.cameraReturnFocus;
+    this.cameraReturnFocus = null;
+    if (restaurarFoco && focusTarget?.isConnected) focusTarget.focus();
   }
 
   /* ====================================================================

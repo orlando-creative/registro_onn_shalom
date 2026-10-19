@@ -253,7 +253,7 @@
        MODAL DE EDICIÓN DE REGISTRO
        ==================================================================== -->
   <div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-caja" style="max-width: 600px;">
+    <div class="modal-caja modal-caja-edicion" style="max-width: 600px;">
       <div class="modal-header">
         <h3 class="modal-titulo">Editar Registro del Niño</h3>
         <button type="button" class="modal-cerrar-btn" id="btn-cerrar-editar">×</button>
@@ -301,14 +301,14 @@
               <div class="documento-foto">
                 <strong>Anverso</strong>
                 <img id="edit-foto-anverso-previa" class="edit-documento-foto-previa" alt="Vista previa del anverso" style="display: none;">
-                <input type="file" id="edit-foto-anverso-input" accept="image/jpeg,image/png,image/webp" hidden>
+                <input type="file" id="edit-foto-anverso-input" accept="image/*" hidden>
                 <button type="button" class="btn btn-sm btn-secundario" data-edit-cambiar-foto="anverso">Reemplazar</button>
                 <button type="button" class="btn btn-sm btn-peligro-suave" data-edit-quitar-foto="anverso">Quitar</button>
               </div>
               <div class="documento-foto">
                 <strong>Reverso</strong>
                 <img id="edit-foto-reverso-previa" class="edit-documento-foto-previa" alt="Vista previa del reverso" style="display: none;">
-                <input type="file" id="edit-foto-reverso-input" accept="image/jpeg,image/png,image/webp" hidden>
+                <input type="file" id="edit-foto-reverso-input" accept="image/*" hidden>
                 <button type="button" class="btn btn-sm btn-secundario" data-edit-cambiar-foto="reverso">Reemplazar</button>
                 <button type="button" class="btn btn-sm btn-peligro-suave" data-edit-quitar-foto="reverso">Quitar</button>
               </div>

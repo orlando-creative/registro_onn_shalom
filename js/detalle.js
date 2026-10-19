@@ -14,6 +14,7 @@ export class ModuloDetalle {
     this.nino = null;
     this.nuevasFotosArchivo = { anverso: null, reverso: null };
     this.eliminarFotosAlGuardar = { anverso: false, reverso: false };
+    this.urlsPreviaFotos = { anverso: null, reverso: null };
     this.inicializar();
   }
 
@@ -222,11 +223,14 @@ export class ModuloDetalle {
 
           this.nuevasFotosArchivo[lado] = file;
           this.eliminarFotosAlGuardar[lado] = false;
+          if (this.urlsPreviaFotos[lado]) URL.revokeObjectURL(this.urlsPreviaFotos[lado]);
+          this.urlsPreviaFotos[lado] = URL.createObjectURL(file);
           const imgPrevia = document.getElementById(`edit-foto-${lado}-previa`);
           if (imgPrevia) {
-            imgPrevia.src = URL.createObjectURL(file);
+            imgPrevia.src = this.urlsPreviaFotos[lado];
             imgPrevia.style.display = 'block';
           }
+          inputFoto.value = '';
         });
       }
 
@@ -234,6 +238,8 @@ export class ModuloDetalle {
         btnQuitarFoto.addEventListener('click', () => {
           this.nuevasFotosArchivo[lado] = null;
           this.eliminarFotosAlGuardar[lado] = true;
+          if (this.urlsPreviaFotos[lado]) URL.revokeObjectURL(this.urlsPreviaFotos[lado]);
+          this.urlsPreviaFotos[lado] = null;
           if (inputFoto) inputFoto.value = '';
           const imgPrevia = document.getElementById(`edit-foto-${lado}-previa`);
           if (imgPrevia) {
@@ -264,6 +270,8 @@ export class ModuloDetalle {
       const imgPrincipal = document.getElementById(`detalle-foto${suffix}-img`);
       const inputFoto = document.getElementById(`edit-foto-${lado}-input`);
       if (inputFoto) inputFoto.value = '';
+      if (this.urlsPreviaFotos[lado]) URL.revokeObjectURL(this.urlsPreviaFotos[lado]);
+      this.urlsPreviaFotos[lado] = null;
       if (imgPrevia) {
         if (imgPrincipal && imgPrincipal.style.display !== 'none' && imgPrincipal.src) {
           imgPrevia.src = imgPrincipal.src;

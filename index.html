@@ -186,7 +186,6 @@
                   <div id="foto-placeholder-anverso" class="foto-placeholder-icono"><span>Sin foto</span></div>
                 </div>
                 <input type="file" id="input-foto-anverso" accept="image/jpeg,image/png,image/webp" hidden>
-                <input type="file" id="input-camara-anverso" accept="image/*" capture="environment" hidden>
                 <div class="foto-acciones">
                   <button type="button" class="btn btn-sm btn-secundario" data-seleccionar-foto="anverso">Elegir imagen</button>
                   <button type="button" class="btn btn-sm btn-suave" data-capturar-foto="anverso">Tomar anverso</button>
@@ -201,7 +200,6 @@
                   <div id="foto-placeholder-reverso" class="foto-placeholder-icono"><span>Sin foto</span></div>
                 </div>
                 <input type="file" id="input-foto-reverso" accept="image/jpeg,image/png,image/webp" hidden>
-                <input type="file" id="input-camara-reverso" accept="image/*" capture="environment" hidden>
                 <div class="foto-acciones">
                   <button type="button" class="btn btn-sm btn-secundario" data-seleccionar-foto="reverso">Elegir imagen</button>
                   <button type="button" class="btn btn-sm btn-suave" data-capturar-foto="reverso">Tomar reverso</button>
@@ -209,7 +207,7 @@
                 </div>
               </div>
             </div>
-            <span class="campo-ayuda" style="margin-top: 0.5rem;">La cámara del teléfono se abrirá a pantalla completa. Formatos JPG, PNG o WebP. Máximo 5 MB por imagen.</span>
+            <span class="campo-ayuda" style="margin-top: 0.5rem;">La cámara se abrirá aquí mismo. Formatos JPG, PNG o WebP. Máximo 5 MB por imagen.</span>
           </div>
 
           <!-- Consentimiento -->
@@ -296,6 +294,21 @@
           <button type="submit" class="btn btn-primario">Guardar y Conectar</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="modal-camara" class="camara-modal" role="dialog" aria-modal="true" aria-labelledby="camara-titulo" aria-hidden="true">
+    <div class="camara-dialogo">
+      <div class="camara-cabecera">
+        <h2 id="camara-titulo" class="camara-titulo">Tomar fotografía</h2>
+        <button type="button" id="btn-cerrar-camara" class="camara-cerrar-btn" aria-label="Cerrar cámara">&times;</button>
+      </div>
+      <video id="camara-video" class="camara-visor-video" autoplay muted playsinline aria-label="Vista previa de la cámara"></video>
+      <p id="camara-estado" class="camara-estado" role="status" aria-live="polite">Iniciando cámara...</p>
+      <div class="camara-controles">
+        <button type="button" id="btn-cancelar-camara" class="btn btn-secundario">Cancelar</button>
+        <button type="button" id="btn-tomar-foto" class="btn btn-primario" disabled>Capturar foto</button>
+      </div>
     </div>
   </div>
 
